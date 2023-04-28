@@ -11,6 +11,11 @@ class ApiBaseResponder implements ResponseContract
     /** @var array<string, string> $headers */
     private array $headers = ['Content-Type' => 'application/json; charset=UTF-8', 'charset' => 'utf-8'];
 
+    public static function make(): static
+    {
+        return new static();
+    }
+
     /**
      * @inheritdoc
      */
