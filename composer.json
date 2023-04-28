@@ -3,6 +3,10 @@
   "description": "Easy api responder template using via DI",
   "keywords": [
     "pepperfm",
+    "laravel",
+    "api",
+    "json",
+    "rest",
     "laravel-api-responder"
   ],
   "homepage": "https://github.com/pepperfm/laravel-api-responder",
@@ -49,7 +53,7 @@
         "Pepperfm\\ApiBaseResponder\\ApiBaseResponderServiceProvider"
       ],
       "aliases": {
-        "LaravelApiResponder": "Pepperfm\\ApiBaseResponder\\ApiBaseResponderFacade"
+        "ApiBaseResponder": "Pepperfm\\ApiBaseResponder\\BaseResponse"
       }
     }
   }

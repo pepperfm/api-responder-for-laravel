@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Facade;
 /**
  * @see \Pepperfm\ApiBaseResponder\ApiBaseResponder
  */
-class ApiBaseResponderFacade extends Facade
+class BaseResponse extends Facade
 {
     /**
      * Get the registered name of the component.
