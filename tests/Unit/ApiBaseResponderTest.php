@@ -15,17 +15,21 @@ class ApiBaseResponderTest extends TestCase
     /**
      * @test
      */
-    public function it_provides_a_getter_for_calendarId()
+    public function methods_exists_test(): void
     {
         $this->instance(
             ResponseContract::class,
             Mockery::mock(ResponseContract::class, function (MockInterface $mock) {
                 $mock->shouldReceive('response')->once()->andReturn(app(JsonResponse::class));
                 $mock->shouldReceive('error')->once()->andReturn(app(JsonResponse::class));
+                $mock->shouldReceive('stored')->once()->andReturn(app(JsonResponse::class));
+                $mock->shouldReceive('deleted')->once()->andReturn(app(JsonResponse::class));
             })
         );
 
         app(ResponseContract::class)->response([]);
         app(ResponseContract::class)->error();
+        app(ResponseContract::class)->stored([]);
+        app(ResponseContract::class)->deleted([]);
     }
 }
