@@ -22,16 +22,18 @@
     "illuminate/support": "^10.9"
   },
   "require-dev": {
+    "orchestra/testbench": "^8.5",
     "phpunit/phpunit": "^9.0"
   },
   "autoload": {
     "psr-4": {
-      "Pepperfm\\ApiBaseResponder\\": "src"
+      "Pepperfm\\ApiBaseResponder\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "Pepperfm\\ApiBaseResponder\\Tests\\": "tests"
+      "Pepperfm\\ApiBaseResponder\\Tests\\": "tests/",
+      "Tests\\": "tests/"
     }
   },
   "scripts": {
