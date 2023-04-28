@@ -1,0 +1,54 @@
+{
+  "name": "pepperfm/laravel-api-responder",
+  "description": "Easy api responder template using via DI",
+  "keywords": [
+    "pepperfm",
+    "laravel-api-responder"
+  ],
+  "homepage": "https://github.com/pepperfm/laravel-api-responder",
+  "license": "MIT",
+  "type": "library",
+  "authors": [
+    {
+      "name": "Dmitry Gaponenko",
+      "email": "Damon3453@yandex.ru",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": "^8.2",
+    "illuminate/database": "^10.9",
+    "illuminate/http": "^10.9",
+    "illuminate/support": "^10.9"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Pepperfm\\ApiBaseResponder\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Pepperfm\\ApiBaseResponder\\Tests\\": "tests"
+    }
+  },
+  "scripts": {
+    "test": "vendor/bin/phpunit",
+    "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Pepperfm\\ApiBaseResponder\\ApiBaseResponderServiceProvider"
+      ],
+      "aliases": {
+        "LaravelApiResponder": "Pepperfm\\ApiBaseResponder\\ApiBaseResponderFacade"
+      }
+    }
+  }
+}
