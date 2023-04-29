@@ -24,9 +24,9 @@ class ApiBaseResponderServiceProvider extends ServiceProvider
         // $this->loadRoutesFrom(__DIR__.'/routes.php');
 
         if ($this->app->runningInConsole()) {
-            // $this->publishes([
-            //     __DIR__.'/../config/config.php' => config_path('laravel-api-responder.php'),
-            // ], 'config');
+            $this->publishes([
+                base_path('config/config.php') => config_path('laravel-api-responder.php'),
+            ], 'config');
 
             $this->app->booted(function () {
                 Artisan::call('api-responder:install');
@@ -58,7 +58,7 @@ class ApiBaseResponderServiceProvider extends ServiceProvider
     public function register(): void
     {
         // Automatically apply the package configuration
-        $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'laravel-api-responder');
+        $this->mergeConfigFrom(base_path('config/config.php'), 'laravel-api-responder');
 
         // Register the main class to use with the facade
         $this->app->singleton(ResponseContract::class, ApiBaseResponder::class);
