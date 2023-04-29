@@ -31,7 +31,8 @@
   },
   "autoload": {
     "psr-4": {
-      "Pepperfm\\ApiBaseResponder\\": "src/"
+      "Pepperfm\\ApiBaseResponder\\": "src/",
+      "Pepperfm\\": "/"
     }
   },
   "autoload-dev": {

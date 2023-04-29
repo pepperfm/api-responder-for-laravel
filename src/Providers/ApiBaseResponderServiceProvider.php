@@ -2,8 +2,10 @@
 
 namespace Pepperfm\ApiBaseResponder\Providers;
 
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\ServiceProvider;
 use Pepperfm\ApiBaseResponder\ApiBaseResponder;
+use Pepperfm\ApiBaseResponder\Console\InstallCommand;
 use Pepperfm\ApiBaseResponder\Contracts\ResponseContract;
 
 class ApiBaseResponderServiceProvider extends ServiceProvider
@@ -25,6 +27,10 @@ class ApiBaseResponderServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__.'/../config/config.php' => config_path('laravel-api-responder.php'),
             ], 'config');
+
+            $this->app->booted(function () {
+                Artisan::call('api-responder:install');
+            });
 
             // Publishing the views.
             /*$this->publishes([
@@ -56,5 +62,21 @@ class ApiBaseResponderServiceProvider extends ServiceProvider
 
         // Register the main class to use with the facade
         $this->app->singleton(ResponseContract::class, ApiBaseResponder::class);
+
+        $this->registerCommands();
+    }
+
+    /**
+     * Register the Invoices Artisan commands.
+     *
+     * @return void
+     */
+    protected function registerCommands(): void
+    {
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                InstallCommand::class,
+            ]);
+        }
     }
 }
