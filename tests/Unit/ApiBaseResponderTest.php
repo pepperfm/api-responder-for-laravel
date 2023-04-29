@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Pepperfm\ApiBaseResponder\Tests\Unit;
+namespace Tests\Unit;
 
 use Mockery;
 use Mockery\MockInterface;
 use Illuminate\Http\JsonResponse;
 use Pepperfm\ApiBaseResponder\Contracts\ResponseContract;
-use Pepperfm\ApiBaseResponder\Tests\TestCase;
+use Tests\TestCase;
 
 class ApiBaseResponderTest extends TestCase
 {
