@@ -7,7 +7,7 @@
     "api",
     "json",
     "rest",
-    "laravel-api-responder"
+    "api-responder"
   ],
   "homepage": "https://github.com/pepperfm/api-responder-for-lravel",
   "license": "MIT",
