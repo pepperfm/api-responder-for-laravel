@@ -18,14 +18,14 @@ class ApiBaseResponderServiceProvider extends ServiceProvider
         /*
          * Optional methods to load your package assets
          */
-        // $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'laravel-api-responder');
-        // $this->loadViewsFrom(__DIR__.'/../resources/views', 'laravel-api-responder');
-        // $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
-        // $this->loadRoutesFrom(__DIR__.'/routes.php');
+        // $this->loadTranslationsFrom(__DIR__.'/../../resources/lang', 'laravel-api-responder');
+        // $this->loadViewsFrom(__DIR__.'/../../resources/views', 'laravel-api-responder');
+        // $this->loadMigrationsFrom(__DIR__.'/../../database/migrations');
+        // $this->loadRoutesFrom(__DIR__.'/../routes.php');
 
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                base_path('config/config.php') => config_path('laravel-api-responder.php'),
+                __DIR__.'/../../config/config.php' => config_path('laravel-api-responder.php'),
             ], 'config');
 
             $this->app->booted(function () {
@@ -34,17 +34,17 @@ class ApiBaseResponderServiceProvider extends ServiceProvider
 
             // Publishing the views.
             /*$this->publishes([
-                __DIR__.'/../resources/views' => resource_path('views/vendor/laravel-api-responder'),
+                __DIR__.'/../../resources/views' => resource_path('views/vendor/laravel-api-responder'),
             ], 'views');*/
 
             // Publishing assets.
             /*$this->publishes([
-                __DIR__.'/../resources/assets' => public_path('vendor/laravel-api-responder'),
+                __DIR__.'/../../resources/assets' => public_path('vendor/laravel-api-responder'),
             ], 'assets');*/
 
             // Publishing the translation files.
             /*$this->publishes([
-                __DIR__.'/../resources/lang' => resource_path('lang/vendor/laravel-api-responder'),
+                __DIR__.'/../../resources/lang' => resource_path('lang/vendor/laravel-api-responder'),
             ], 'lang');*/
 
             // Registering package commands.
@@ -58,7 +58,7 @@ class ApiBaseResponderServiceProvider extends ServiceProvider
     public function register(): void
     {
         // Automatically apply the package configuration
-        $this->mergeConfigFrom(base_path('config/config.php'), 'laravel-api-responder');
+        $this->mergeConfigFrom(__DIR__.'/../../config/config.php', 'laravel-api-responder');
 
         // Register the main class to use with the facade
         $this->app->singleton(ResponseContract::class, ApiBaseResponder::class);
