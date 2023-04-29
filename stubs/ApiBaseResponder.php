@@ -42,8 +42,7 @@ class ApiBaseResponder implements ResponseContract
         int $httpStatusCode = JsonResponse::HTTP_INTERNAL_SERVER_ERROR,
         mixed $errors = null,
         mixed $data = null
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $response = [
             'message' => $message,
             'errors' => $errors,

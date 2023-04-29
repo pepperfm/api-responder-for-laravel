@@ -33,7 +33,7 @@ class InstallCommand extends Command
     public function handle(): void
     {
         if ($this->argument('has_oauth_error_method')) {
-            copy(base_path('stubs/ApiBaseResponder.php'), base_path('src/ApiBaseResponder.php'));
+            copy(__DIR__ . '/../../stubs/ApiBaseResponder.php', __DIR__ . '/../../src/ApiBaseResponder.php');
         }
     }
 }
