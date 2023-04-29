@@ -24,9 +24,9 @@ class ApiBaseResponderServiceProvider extends ServiceProvider
         // $this->loadRoutesFrom(__DIR__.'/routes.php');
 
         if ($this->app->runningInConsole()) {
-            $this->publishes([
-                __DIR__.'/../config/config.php' => config_path('laravel-api-responder.php'),
-            ], 'config');
+            // $this->publishes([
+            //     __DIR__.'/../config/config.php' => config_path('laravel-api-responder.php'),
+            // ], 'config');
 
             $this->app->booted(function () {
                 Artisan::call('api-responder:install');
