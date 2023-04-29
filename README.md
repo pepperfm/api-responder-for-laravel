@@ -76,6 +76,13 @@ public function index(Request $request)
 }
 ```
 
+## Console
+If you want to add `OAuthError()` method, please, run
+```bash
+php artisan api-responder:init
+```
+command.
+
 ### Testing
 
 ```bash

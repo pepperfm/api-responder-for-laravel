@@ -31,14 +31,13 @@
   },
   "autoload": {
     "psr-4": {
-      "Pepperfm\\ApiBaseResponder\\": "src/",
-      "Pepperfm\\Stubs\\": "stubs/"
+      "Pepperfm\\ApiBaseResponder\\": "src"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "Pepperfm\\ApiBaseResponder\\Tests\\": "tests/",
-      "Tests\\": "tests/"
+      "Pepperfm\\ApiBaseResponder\\Tests\\": "tests",
+      "Tests\\": "tests"
     }
   },
   "scripts": {

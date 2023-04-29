@@ -4,7 +4,7 @@ namespace Pepperfm\ApiBaseResponder\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Pepperfm\ApiBaseResponder\ApiBaseResponder;
-use Pepperfm\ApiBaseResponder\Console\InstallCommand;
+use Pepperfm\ApiBaseResponder\Console\InitCommand;
 use Pepperfm\ApiBaseResponder\Contracts\ResponseContract;
 
 class ApiBaseResponderServiceProvider extends ServiceProvider
@@ -70,7 +70,7 @@ class ApiBaseResponderServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
-                InstallCommand::class,
+                InitCommand::class,
             ]);
         }
     }

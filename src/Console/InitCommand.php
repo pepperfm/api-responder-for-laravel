@@ -8,14 +8,14 @@ namespace Pepperfm\ApiBaseResponder\Console;
 // use Symfony\Component\Process\Process;
 use Illuminate\Console\Command;
 
-class InstallCommand extends Command
+class InitCommand extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'api-responder:install
+    protected $signature = 'api-responder:init
                             {has_oauth_error_method=true : Flag for creating class with OAuthError() method}';
 
     /**
@@ -33,7 +33,7 @@ class InstallCommand extends Command
     public function handle(): void
     {
         if ($this->argument('has_oauth_error_method')) {
-            copy(__DIR__ . '/../../stubs/ApiBaseResponder.php', __DIR__ . '/../../src/ApiBaseResponder.php');
+            copy(__DIR__ . '/../../stubs/ApiBaseResponder.stub', __DIR__ . '/../../src/ApiBaseResponder.php');
         }
     }
 }
