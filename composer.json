@@ -1,5 +1,5 @@
 {
-  "name": "pepperfm/laravel-api-responder",
+  "name": "pepperfm/api-responder-for-laravel",
   "description": "Easy api responder template using via DI",
   "keywords": [
     "pepperfm",
