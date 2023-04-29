@@ -1,4 +1,4 @@
-# Laravel api responder
+# Api responder for Laravel
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/pepperfm/laravel-api-responder.svg?style=flat-square)](https://packagist.org/packages/pepperfm/laravel-api-responder)
 [![Total Downloads](https://img.shields.io/packagist/dt/pepperfm/laravel-api-responder.svg?style=flat-square)](https://packagist.org/packages/pepperfm/laravel-api-responder)
@@ -11,7 +11,7 @@ Easy api responder template using via DI
 You can install the package via composer:
 
 ```bash
-composer require pepperfm/laravel-api-responder
+composer require pepperfm/api-responder-for-laravel
 ```
 
 ## Usage
