@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Pepperfm\ApiBaseResponder;
 
 use Illuminate\Http\JsonResponse;
+use Pepperfm\ApiBaseResponder\Contracts\ResponseContract;
 
 class ApiBaseResponder implements ResponseContract
 {

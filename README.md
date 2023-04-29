@@ -1,8 +1,8 @@
 # Api responder for Laravel
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/pepperfm/laravel-api-responder.svg?style=flat-square)](https://packagist.org/packages/pepperfm/laravel-api-responder)
-[![Total Downloads](https://img.shields.io/packagist/dt/pepperfm/laravel-api-responder.svg?style=flat-square)](https://packagist.org/packages/pepperfm/laravel-api-responder)
-![GitHub Actions](https://github.com/pepperfm/laravel-api-responder/actions/workflows/main.yml/badge.svg)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/pepperfm/api-responder-for-laravel.svg?style=flat-square)](https://packagist.org/packages/pepperfm/api-responder--for-laravel)
+[![Total Downloads](https://img.shields.io/packagist/dt/pepperfm/api-responder-for-laravel.svg?style=flat-square)](https://packagist.org/packages/pepperfm/api-responder-for-laravel)
+![GitHub Actions](https://github.com/pepperfm/api-responder-for-laravel/actions/workflows/main.yml/badge.svg)
 
 Easy api responder template using via DI
 

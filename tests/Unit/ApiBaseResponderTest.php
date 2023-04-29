@@ -7,8 +7,8 @@ namespace Pepperfm\ApiBaseResponder\Tests\Unit;
 use Mockery;
 use Mockery\MockInterface;
 use Illuminate\Http\JsonResponse;
+use Pepperfm\ApiBaseResponder\Contracts\ResponseContract;
 use Pepperfm\ApiBaseResponder\Tests\TestCase;
-use Pepperfm\ApiBaseResponder\ResponseContract;
 
 class ApiBaseResponderTest extends TestCase
 {

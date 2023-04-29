@@ -50,10 +50,10 @@
   "extra": {
     "laravel": {
       "providers": [
-        "Pepperfm\\ApiBaseResponder\\ApiBaseResponderServiceProvider"
+        "Pepperfm\\ApiBaseResponder\\Providers\\ApiBaseResponderServiceProvider"
       ],
       "aliases": {
-        "ApiBaseResponder": "Pepperfm\\ApiBaseResponder\\BaseResponse"
+        "ApiBaseResponder": "Pepperfm\\ApiBaseResponder\\Facades\\BaseResponse"
       }
     }
   }

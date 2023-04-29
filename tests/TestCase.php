@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Pepperfm\ApiBaseResponder\Tests;
 // namespace Tests;
 
-use Pepperfm\ApiBaseResponder\ApiBaseResponderServiceProvider;
+use Pepperfm\ApiBaseResponder\Providers\ApiBaseResponderServiceProvider;
 
 abstract class TestCase extends \Orchestra\Testbench\TestCase
 {

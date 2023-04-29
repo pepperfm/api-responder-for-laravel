@@ -1,8 +1,9 @@
 <?php
 
-namespace Pepperfm\ApiBaseResponder;
+namespace Pepperfm\ApiBaseResponder\Facades;
 
 use Illuminate\Support\Facades\Facade;
+use Pepperfm\ApiBaseResponder\Contracts\ResponseContract;
 
 /**
  * @method \Illuminate\Http\JsonResponse response(array $data, string $message = 'Success', int $httpStatusCode = \Illuminate\Http\JsonResponse::HTTP_OK)
