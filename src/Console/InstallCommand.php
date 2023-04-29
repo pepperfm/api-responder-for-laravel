@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Pepperfm\ApiBaseResponder\Console;
 
+// use Illuminate\Filesystem\Filesystem;
+// use Symfony\Component\Process\Process;
 use Illuminate\Console\Command;
-use Illuminate\Filesystem\Filesystem;
-use Symfony\Component\Process\Process;
 
 class InstallCommand extends Command
 {

@@ -2,7 +2,6 @@
 
 namespace Pepperfm\ApiBaseResponder\Providers;
 
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\ServiceProvider;
 use Pepperfm\ApiBaseResponder\ApiBaseResponder;
 use Pepperfm\ApiBaseResponder\Console\InstallCommand;
@@ -27,10 +26,6 @@ class ApiBaseResponderServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__ . '/../../config/config.php' => config_path('laravel-api-responder.php'),
             ], 'config');
-
-            $this->app->booted(function () {
-                Artisan::call('api-responder:install');
-            });
 
             // Publishing the views.
             /*$this->publishes([

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Pepperfm;
+namespace Pepperfm\Stubs;
 
 use Illuminate\Http\JsonResponse;
 use Pepperfm\ApiBaseResponder\Contracts\ResponseContract;
