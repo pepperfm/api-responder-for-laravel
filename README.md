@@ -19,7 +19,7 @@ composer require pepperfm/api-responder-for-laravel
 
 ### In **use** section:
 
-`use Pepperfm\ApiBaseResponder\ResponseContract;`
+`use Pepperfm\ApiBaseResponder\Contracts\ResponseContract;`
 
 Then any options you like:
 
@@ -66,7 +66,7 @@ public function index(Request $request)
 ```
 or
 ```php
-use Pepperfm\ApiBaseResponder\BaseResponse;
+use Pepperfm\ApiBaseResponder\Facades\BaseResponse;
 
 public function index(Request $request)
 {
