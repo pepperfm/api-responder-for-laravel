@@ -21,6 +21,6 @@ class BaseResponse extends Facade
      */
     protected static function getFacadeAccessor(): string
     {
-        return 'api-base-responder';
+        return ResponseContract::class;
     }
 }
