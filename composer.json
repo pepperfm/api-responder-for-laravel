@@ -32,7 +32,7 @@
   "autoload": {
     "psr-4": {
       "Pepperfm\\ApiBaseResponder\\": "src/",
-      "Pepperfm\\Stubs": "stubs/"
+      "Pepperfm\\Stubs\\": "stubs/"
     }
   },
   "autoload-dev": {
