@@ -9,7 +9,7 @@
     "rest",
     "laravel-api-responder"
   ],
-  "homepage": "https://github.com/pepperfm/laravel-api-responder",
+  "homepage": "https://github.com/pepperfm/api-responder-for-lravel",
   "license": "MIT",
   "type": "library",
   "authors": [
