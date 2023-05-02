@@ -21,9 +21,9 @@
   ],
   "require": {
     "php": "^8.2",
-    "illuminate/database": "^9",
-    "illuminate/http": "^9",
-    "illuminate/support": "^9"
+    "illuminate/database": "*",
+    "illuminate/http": "*",
+    "illuminate/support": "*"
   },
   "require-dev": {
     "orchestra/testbench": "7.5",
@@ -54,7 +54,12 @@
       ],
       "aliases": {
         "ApiBaseResponder": "Pepperfm\\ApiBaseResponder\\Facades\\BaseResponse"
-      }
+      },
+      "dont-discover": [
+        "illuminate/database",
+        "illuminate/http",
+        "illuminate/support"
+      ]
     }
   }
 }
