@@ -4,10 +4,19 @@ declare(strict_types=1);
 
 namespace Tests;
 
+use Illuminate\Foundation\Testing\WithFaker;
 use Pepperfm\ApiBaseResponder\Providers\ApiBaseResponderServiceProvider;
 
 abstract class TestCase extends \Orchestra\Testbench\TestCase
 {
+    use WithFaker;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->setUpFaker();
+    }
+
     /**
      * @inheritdoc
      */

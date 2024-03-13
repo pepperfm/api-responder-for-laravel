@@ -5,22 +5,25 @@ declare(strict_types=1);
 namespace Pepperfm\ApiBaseResponder\Contracts;
 
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Collection;
 
 interface ResponseContract
 {
     /**
      * Success response method
      *
-     * @param array $data
+     * @param array|Collection $data
+     * @param array $meta
      * @param string $message
      * @param int $httpStatusCode
      *
      * @return JsonResponse
      */
     public function response(
-        array $data,
+        array|Collection $data,
+        array $meta = [],
         string $message = 'Success',
-        int $httpStatusCode = JsonResponse::HTTP_OK
+        int $httpStatusCode = JsonResponse::HTTP_OK,
     ): JsonResponse;
 
     /**

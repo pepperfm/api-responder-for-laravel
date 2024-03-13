@@ -1,65 +1,74 @@
 {
-  "name": "pepperfm/api-responder-for-laravel",
-  "description": "Easy api responder template using via DI",
-  "keywords": [
-    "pepperfm",
-    "laravel",
-    "api",
-    "json",
-    "rest",
-    "api-responder"
-  ],
-  "homepage": "https://github.com/pepperfm/api-responder-for-lravel",
-  "license": "MIT",
-  "type": "library",
-  "authors": [
-    {
-      "name": "Dmitry Gaponenko",
-      "email": "Damon3453@yandex.ru",
-      "role": "Developer"
+    "name": "pepperfm/api-responder-for-laravel",
+    "description": "Easy api responder template using via DI",
+    "keywords": [
+        "pepperfm",
+        "laravel",
+        "api",
+        "json",
+        "rest",
+        "api-responder"
+    ],
+    "homepage": "https://github.com/pepperfm/api-responder-for-lravel",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Dmitry Gaponenko",
+            "email": "Damon3453@yandex.ru",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "guzzlehttp/guzzle": "^7.8",
+        "guzzlehttp/psr7": "^2.6",
+        "illuminate/database": "^10.0",
+        "illuminate/http": "^10.0",
+        "illuminate/support": "^10.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^v8.22",
+        "pestphp/pest": "^2.32",
+        "pestphp/pest-plugin-laravel": "^2.2",
+        "phpunit/phpunit": "^10.0"
+    },
+    "autoload": {
+        "files": [
+            "src/helpers.php"
+        ],
+        "psr-4": {
+            "Pepperfm\\ApiBaseResponder\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Pepperfm\\ApiBaseResponder\\Providers\\ApiBaseResponderServiceProvider"
+            ],
+            "aliases": {
+                "ApiBaseResponder": "Pepperfm\\ApiBaseResponder\\Facades\\BaseResponse"
+            },
+            "dont-discover": [
+                "illuminate/database",
+                "illuminate/http",
+                "illuminate/support"
+            ]
+        }
     }
-  ],
-  "require": {
-    "php": "^8.1",
-    "illuminate/database": "*",
-    "illuminate/http": "*",
-    "illuminate/support": "*"
-  },
-  "require-dev": {
-    "orchestra/testbench": "7.5",
-    "phpunit/phpunit": "^9.5"
-  },
-  "autoload": {
-    "psr-4": {
-      "Pepperfm\\ApiBaseResponder\\": "src"
-    }
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "Pepperfm\\ApiBaseResponder\\Tests\\": "tests",
-      "Tests\\": "tests"
-    }
-  },
-  "scripts": {
-    "test": "vendor/bin/phpunit",
-    "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
-  },
-  "config": {
-    "sort-packages": true
-  },
-  "extra": {
-    "laravel": {
-      "providers": [
-        "Pepperfm\\ApiBaseResponder\\Providers\\ApiBaseResponderServiceProvider"
-      ],
-      "aliases": {
-        "ApiBaseResponder": "Pepperfm\\ApiBaseResponder\\Facades\\BaseResponse"
-      },
-      "dont-discover": [
-        "illuminate/database",
-        "illuminate/http",
-        "illuminate/support"
-      ]
-    }
-  }
 }

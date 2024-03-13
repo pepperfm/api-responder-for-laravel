@@ -1,35 +1,36 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Tests\Unit;
-
-use Mockery;
 use Mockery\MockInterface;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Http;
 use Pepperfm\ApiBaseResponder\Contracts\ResponseContract;
-use Tests\TestCase;
 
-class ApiBaseResponderTest extends TestCase
-{
-    /**
-     * @test
-     */
-    public function methods_exists_test(): void
-    {
-        $this->instance(
-            ResponseContract::class,
-            Mockery::mock(ResponseContract::class, function (MockInterface $mock) {
-                $mock->shouldReceive('response')->once()->andReturn(app(JsonResponse::class));
-                $mock->shouldReceive('error')->once()->andReturn(app(JsonResponse::class));
-                $mock->shouldReceive('stored')->once()->andReturn(app(JsonResponse::class));
-                $mock->shouldReceive('deleted')->once()->andReturn(app(JsonResponse::class));
-            })
-        );
+use function Pest\Laravel\instance;
 
-        app(ResponseContract::class)->response([]);
-        app(ResponseContract::class)->error();
-        app(ResponseContract::class)->stored([]);
-        app(ResponseContract::class)->deleted([]);
-    }
-}
+test('response format', function () {
+    instance(
+        ResponseContract::class,
+        Mockery::mock(ResponseContract::class, function (MockInterface $mock) {
+            $mock->shouldReceive('response')
+                ->once()
+                ->andReturn(
+                    new JsonResponse([
+                        'entities' => [],
+                        'meta' => [],
+                    ])
+                );
+        })
+    );
+
+    $url = 'https://dummy.com/api/users';
+
+    Http::fake([
+        $url => Http::response(
+            $this->app->make(ResponseContract::class)->response([])->getContent()
+        ),
+    ]);
+
+    $response = Http::get($url)->json();
+
+    expect($response)->toHaveKeys(['entities', 'meta']);
+});

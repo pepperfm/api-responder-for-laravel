@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Pepperfm\ApiBaseResponder;
 
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Collection;
 use Pepperfm\ApiBaseResponder\Contracts\ResponseContract;
 
 class ApiBaseResponder implements ResponseContract
@@ -21,17 +22,15 @@ class ApiBaseResponder implements ResponseContract
      * @inheritdoc
      */
     public function response(
-        array $data,
+        array|Collection $data,
+        array $meta = [],
         string $message = 'Success',
         int $httpStatusCode = JsonResponse::HTTP_OK
     ): JsonResponse {
-        $response = [
-            'message' => $message,
-            'errors' => null,
-            'data' => $data,
-        ];
-
-        return new JsonResponse($response, $httpStatusCode, $this->headers, JSON_UNESCAPED_UNICODE);
+        return response()->json([
+            'entities' => $data,
+            'meta' => $meta,
+        ], $httpStatusCode, $this->headers, JSON_UNESCAPED_UNICODE);
     }
 
     /**
@@ -43,13 +42,7 @@ class ApiBaseResponder implements ResponseContract
         mixed $errors = null,
         mixed $data = null
     ): JsonResponse {
-        $response = [
-            'message' => $message,
-            'errors' => $errors,
-            'data' => $data,
-        ];
-
-        return new JsonResponse($response, $httpStatusCode, $this->headers, JSON_UNESCAPED_UNICODE);
+        return response()->json($data, $httpStatusCode, $this->headers, JSON_UNESCAPED_UNICODE);
     }
 
     /**
@@ -62,7 +55,7 @@ class ApiBaseResponder implements ResponseContract
         array $data,
         string $message = '',
     ): JsonResponse {
-        return $this->response($data, $message, JsonResponse::HTTP_CREATED);
+        return $this->response($data, message: $message, httpStatusCode: JsonResponse::HTTP_CREATED);
     }
 
     /**
@@ -75,6 +68,6 @@ class ApiBaseResponder implements ResponseContract
         array $data,
         string $message = '',
     ): JsonResponse {
-        return $this->response($data, $message, JsonResponse::HTTP_NO_CONTENT);
+        return $this->response($data, message: $message, httpStatusCode: JsonResponse::HTTP_NO_CONTENT);
     }
 }
