@@ -31,9 +31,9 @@ public function __construct(public ResponseContract $json)
 
 public function index(Request $request, ResponseContract $json)
 {
-    return $this->json->response([
-        'users' => User::whereIn('id', $request->input('ids'))->get(),
-    ]);
+    $users = User::whereIn('id', $request->input('ids'))->get();
+
+    return $this->json->response($users, meta($users));
 }
 ```
 
@@ -41,27 +41,21 @@ or
 ```php
 public function index(Request $request, ResponseContract $json)
 {
-    return $json->response([
-        'users' => User::whereIn('id', $request->input('ids'))->get(),
-    ]);
+    return $this->json->response($users, meta($users));
 }
 ```
 or
 ```php
 public function index(Request $request)
 {
-    return app(ResponseContract::class)->response([
-        'users' => User::whereIn('id', $request->input('ids'))->get(),
-    ]);
+    return app(ResponseContract::class)->response($users, meta($users));
 }
 ```
 ### Or would you prefer facades?
 ```php
 public function index(Request $request)
 {
-    return \ApiBaseResponder::response([
-        'users' => User::whereIn('id', $request->input('ids'))->get(),
-    ]);
+    return \ApiBaseResponder::response($users, meta($users));
 }
 ```
 or
@@ -70,18 +64,21 @@ use Pepperfm\ApiBaseResponder\Facades\BaseResponse;
 
 public function index(Request $request)
 {
-    return BaseResponse::response([
-        'users' => User::whereIn('id', $request->input('ids'))->get(),
-    ]);
+    return BaseResponse::response($users, meta($users));
 }
 ```
 
-## Console
-If you want to add `OAuthError()` method, please, run
-```bash
-php artisan api-responder:init
-```
-command.
+[//]: # (## Console)
+
+[//]: # (If you want to add `OAuthError&#40;&#41;` method, please, run)
+
+[//]: # (```bash)
+
+[//]: # (php artisan api-responder:init)
+
+[//]: # (```)
+
+[//]: # (command.)
 
 ### Testing
 
