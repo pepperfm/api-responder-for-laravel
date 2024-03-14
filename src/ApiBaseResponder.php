@@ -30,6 +30,7 @@ class ApiBaseResponder implements ResponseContract
         return response()->json([
             'entities' => $data,
             'meta' => $meta,
+            'message' => $message,
         ], $httpStatusCode, $this->headers, JSON_UNESCAPED_UNICODE);
     }
 
@@ -42,7 +43,11 @@ class ApiBaseResponder implements ResponseContract
         mixed $errors = null,
         mixed $data = null
     ): JsonResponse {
-        return response()->json($data, $httpStatusCode, $this->headers, JSON_UNESCAPED_UNICODE);
+        return response()->json([
+            'data' => $data,
+            'message' => $message,
+            'errors' => $errors,
+        ], $httpStatusCode, $this->headers, JSON_UNESCAPED_UNICODE);
     }
 
     /**
