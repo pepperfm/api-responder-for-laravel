@@ -23,9 +23,9 @@
         "php": "^8.2",
         "guzzlehttp/guzzle": "^7.8",
         "guzzlehttp/psr7": "^2.6",
-        "illuminate/database": "^10.0",
-        "illuminate/http": "^10.0",
-        "illuminate/support": "^10.0"
+        "illuminate/database": ">=10.0",
+        "illuminate/http": ">=10.0",
+        "illuminate/support": ">=10.0"
     },
     "require-dev": {
         "orchestra/testbench": "^v8.22",
@@ -45,6 +45,9 @@
         "psr-4": {
             "Tests\\": "tests"
         }
+    },
+    "conflict": {
+        "laravel/framework": "<10.20.0"
     },
     "scripts": {
         "test": "vendor/bin/phpunit",
