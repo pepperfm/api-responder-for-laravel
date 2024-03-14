@@ -57,8 +57,8 @@ class ApiBaseResponder implements ResponseContract
      * @return JsonResponse
      */
     public function stored(
-        array $data,
-        string $message = '',
+        array $data = [],
+        string $message = 'Stored',
     ): JsonResponse {
         return $this->response($data, message: $message, httpStatusCode: JsonResponse::HTTP_CREATED);
     }
@@ -70,8 +70,8 @@ class ApiBaseResponder implements ResponseContract
      * @return JsonResponse
      */
     public function deleted(
-        array $data,
-        string $message = '',
+        array $data = [],
+        string $message = 'Deleted',
     ): JsonResponse {
         return $this->response($data, message: $message, httpStatusCode: JsonResponse::HTTP_NO_CONTENT);
     }
