@@ -50,17 +50,32 @@ class ApiBaseResponder implements ResponseContract
         ], $httpStatusCode, $this->headers, JSON_UNESCAPED_UNICODE);
     }
 
+    public function paginated(
+        \Illuminate\Pagination\LengthAwarePaginator $data,
+        array $meta = [],
+        string $message = 'Success',
+        int $httpStatusCode = JsonResponse::HTTP_OK
+    ): JsonResponse {
+        $resultMeta = array_merge($meta, [
+            'pagination' => paginate($data),
+        ]);
+
+        return $this->response($data->getCollection(), $resultMeta, $message, $httpStatusCode);
+    }
+
     /**
      * @param array $data
+     * @param array $meta
      * @param string $message
      *
      * @return JsonResponse
      */
     public function stored(
         array $data = [],
+        array $meta = [],
         string $message = 'Stored',
     ): JsonResponse {
-        return $this->response($data, message: $message, httpStatusCode: JsonResponse::HTTP_CREATED);
+        return $this->response($data, $meta, $message, JsonResponse::HTTP_CREATED);
     }
 
     /**

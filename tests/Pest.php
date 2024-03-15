@@ -1,3 +1,3 @@
 <?php
 
-uses(Tests\TestCase::class)->in('Unit');
+uses(Pepperfm\ApiBaseResponder\Tests\TestCase::class)->in('Unit');

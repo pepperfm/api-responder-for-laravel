@@ -43,7 +43,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests"
+            "Pepperfm\\ApiBaseResponder\\Tests\\": "tests"
         }
     },
     "conflict": {

@@ -24,16 +24,28 @@ composer require pepperfm/api-responder-for-laravel
 Then any options you like:
 
 ```php
-
 public function __construct(public ResponseContract $json)
 {
 }
 
-public function index(Request $request, ResponseContract $json)
+public function index(Request $request)
 {
-    $users = User::whereIn('id', $request->input('ids'))->get();
+    $users = User::query()->whereIn('id', $request->input('ids'))->get();
 
-    return $this->json->response($users, meta($users));
+    return $this->json->response($users);
+}
+```
+
+for pagination
+```php
+/*
+ * Generate response.data.meta.pagination from first argument of paginated() method  
+ */
+public function index(Request $request)
+{
+    $users = User::query()->whereIn('id', $request->input('ids'))->paginate();
+
+    return $this->json->paginated($users);
 }
 ```
 
@@ -41,21 +53,21 @@ or
 ```php
 public function index(Request $request, ResponseContract $json)
 {
-    return $this->json->response($users, meta($users));
+    return $json->response($users);
 }
 ```
 or
 ```php
 public function index(Request $request)
 {
-    return app(ResponseContract::class)->response($users, meta($users));
+    return app(ResponseContract::class)->response($users);
 }
 ```
 ### Or would you prefer facades?
 ```php
 public function index(Request $request)
 {
-    return \ApiBaseResponder::response($users, meta($users));
+    return \ApiBaseResponder::response($users);
 }
 ```
 or
@@ -64,7 +76,28 @@ use Pepperfm\ApiBaseResponder\Facades\BaseResponse;
 
 public function index(Request $request)
 {
-    return BaseResponse::response($users, meta($users));
+    return BaseResponse::response($users);
+}
+```
+
+## Paginated in response
+The helper-function `paginate` accepts one argument of `LengthAwarePaginator` type in backend and returns object of format:
+```ts
+export interface ProductResponseMeta {
+    current_page: number
+    per_page: number
+    last_page: number
+    from: number
+    to: number
+    total: number
+    prev_page_url?: any
+    next_page_url: string
+    links: ProductResponseMetaLinks[]
+}
+export interface ProductResponseMetaLinks {
+    url?: any
+    label: string
+    active: boolean
 }
 ```
 

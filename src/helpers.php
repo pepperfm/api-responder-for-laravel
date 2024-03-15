@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-if (!function_exists('meta')) {
-    function meta(\Illuminate\Pagination\LengthAwarePaginator $paginator): array
+if (!function_exists('paginate')) {
+    function paginate(\Illuminate\Pagination\LengthAwarePaginator $paginator): array
     {
         return [
             'current_page' => $paginator->currentPage(),

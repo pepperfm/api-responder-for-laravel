@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests;
+namespace Pepperfm\ApiBaseResponder\Tests;
 
 use Illuminate\Foundation\Testing\WithFaker;
 use Pepperfm\ApiBaseResponder\Providers\ApiBaseResponderServiceProvider;
