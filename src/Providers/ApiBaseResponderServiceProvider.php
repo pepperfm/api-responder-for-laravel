@@ -58,7 +58,7 @@ class ApiBaseResponderServiceProvider extends ServiceProvider
         // Register the main class to use with the facade
         $this->app->singleton(ResponseContract::class, ApiBaseResponder::class);
 
-        $this->registerCommands();
+        // $this->registerCommands();
     }
 
     /**
