@@ -51,16 +51,14 @@ class ApiBaseResponder implements ResponseContract
     }
 
     public function paginated(
-        \Illuminate\Pagination\LengthAwarePaginator $data,
-        array $meta = [],
+        \Illuminate\Pagination\LengthAwarePaginator|array $data,
+        \Illuminate\Pagination\LengthAwarePaginator|array $meta = [],
         string $message = 'Success',
         int $httpStatusCode = JsonResponse::HTTP_OK
     ): JsonResponse {
-        $resultMeta = array_merge($meta, [
-            'pagination' => paginate($data),
-        ]);
+        [$resultData, $resultMeta] = new MetaResolver($data, $meta);
 
-        return $this->response($data->getCollection(), $resultMeta, $message, $httpStatusCode);
+        return $this->response($resultData, $resultMeta, $message, $httpStatusCode);
     }
 
     /**

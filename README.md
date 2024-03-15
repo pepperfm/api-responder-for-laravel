@@ -49,6 +49,16 @@ public function index(Request $request)
 }
 ```
 
+with some data mapping
+```php
+public function index(Request $request)
+{
+    $users = User::query()->whereIn('id', $request->input('ids'))->paginate();
+    $dtoCollection = $users->getCollection()->mapInto(UserDto::class);
+
+    return $this->json->paginated($dtoCollection);
+}
+```
 or
 ```php
 public function index(Request $request, ResponseContract $json)
