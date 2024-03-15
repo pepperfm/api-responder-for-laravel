@@ -2,7 +2,7 @@
 
 namespace Pepperfm\ApiBaseResponder;
 
-use \Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 final readonly class MetaResolver
 {
