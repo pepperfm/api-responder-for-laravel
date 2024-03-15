@@ -56,9 +56,9 @@ class ApiBaseResponder implements ResponseContract
         string $message = 'Success',
         int $httpStatusCode = JsonResponse::HTTP_OK
     ): JsonResponse {
-        [$resultData, $resultMeta] = new MetaResolver($data, $meta);
+        $metaData = (new MetaResolver($data, $meta))->handle();
 
-        return $this->response($resultData, $resultMeta, $message, $httpStatusCode);
+        return $this->response($metaData['data'], $metaData['meta'], $message, $httpStatusCode);
     }
 
     /**

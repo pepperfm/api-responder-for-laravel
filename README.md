@@ -56,7 +56,7 @@ public function index(Request $request)
     $users = User::query()->whereIn('id', $request->input('ids'))->paginate();
     $dtoCollection = $users->getCollection()->mapInto(UserDto::class);
 
-    return $this->json->paginated($dtoCollection);
+    return $this->json->paginated($dtoCollection->toArray(), $users);
 }
 ```
 or

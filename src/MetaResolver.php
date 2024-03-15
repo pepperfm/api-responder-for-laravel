@@ -10,7 +10,7 @@ final readonly class MetaResolver
     {
     }
 
-    public function __invoke(): array
+    public function handle(): array
     {
         $data = [];
         $meta = [];
@@ -26,9 +26,9 @@ final readonly class MetaResolver
         }
         if (is_array($this->data) && $this->meta instanceof LengthAwarePaginator) {
             $data = $this->data;
-            $meta = array_merge($this->meta, [
+            $meta = [
                 'pagination' => paginate($this->meta),
-            ]);
+            ];
         }
 
         return [
