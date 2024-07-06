@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Pepperfm\ApiBaseResponder\Providers;
 
 use Illuminate\Support\ServiceProvider;

@@ -154,7 +154,6 @@ If you discover any security related issues, please email Damon3453@yandex.ru in
 ## Credits
 
 -   [Dmitry Gaponenko](https://github.com/pepperfm)
--   [All Contributors](../../contributors)
 
 ## License
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Pepperfm\ApiBaseResponder\Facades;
 
 use Illuminate\Http\JsonResponse;

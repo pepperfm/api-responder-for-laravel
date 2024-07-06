@@ -58,8 +58,8 @@ class ApiBaseResponder implements ResponseContract
     }
 
     public function paginated(
-        \Illuminate\Pagination\LengthAwarePaginator|array $data,
-        \Illuminate\Pagination\LengthAwarePaginator|array $meta = [],
+        array|\Illuminate\Pagination\LengthAwarePaginator $data,
+        array|\Illuminate\Pagination\LengthAwarePaginator $meta = [],
         string $message = 'Success',
         int $httpStatusCode = JsonResponse::HTTP_OK
     ): JsonResponse {

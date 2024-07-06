@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Pepperfm\ApiBaseResponder;
 
 use Illuminate\Pagination\LengthAwarePaginator;
 
 final readonly class MetaResolver
 {
-    public function __construct(private LengthAwarePaginator|array $data, private LengthAwarePaginator|array $meta)
+    public function __construct(private array|LengthAwarePaginator $data, private array|LengthAwarePaginator $meta)
     {
     }
 

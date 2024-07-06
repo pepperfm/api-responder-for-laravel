@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Pepperfm\ApiBaseResponder\Attributes;
 
-use Attribute;
-
-#[Attribute(Attribute::TARGET_METHOD)]
+#[\Attribute(\Attribute::TARGET_METHOD)]
 final readonly class ValidateRestMethod
 {
     public function getDataKey(?string $callerFunctionName = null): string
@@ -17,6 +15,7 @@ final readonly class ValidateRestMethod
 
         return 'entities';
     }
+
     private function usingForRest(): bool
     {
         return config('laravel-api-responder.using_for_rest', true);

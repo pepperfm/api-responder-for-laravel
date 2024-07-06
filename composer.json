@@ -29,6 +29,8 @@
         "illuminate/support": ">=10.0"
     },
     "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.59",
+        "laravel/pint": "^1.16",
         "orchestra/testbench": "^8.22",
         "pestphp/pest": "^2.32",
         "pestphp/pest-plugin-laravel": "^2.2",
@@ -52,7 +54,15 @@
     },
     "scripts": {
         "test": "vendor/bin/pest",
-        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage",
+        "lint": [
+            "@php vendor/bin/pint -v --test",
+            "@php vendor/bin/php-cs-fixer check"
+        ],
+        "lint-hard": [
+            "@php vendor/bin/pint -v",
+            "@php vendor/bin/php-cs-fixer fix --diff -v"
+        ]
     },
     "config": {
         "sort-packages": true,
