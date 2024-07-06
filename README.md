@@ -90,7 +90,7 @@ public function index(Request $request)
 }
 ```
 
-## Paginated in response
+## Paginated data in response
 The helper-function `paginate` accepts one argument of `LengthAwarePaginator` type in backend and returns object of format:
 ```ts
 export interface ProductResponseMeta {
@@ -110,6 +110,16 @@ export interface ProductResponseMetaLinks {
     active: boolean
 }
 ```
+
+## Flexible data key
+The package recognizes which method it was used from, and, according to REST, if you return one record from the show or edit methods, then the response will be in the
+```
+response.data.entity
+```
+
+####  This setting can be changed in the configuration file, and you will always receive the general format `response.data.entities`
+
+---
 
 [//]: # (## Console)
 
