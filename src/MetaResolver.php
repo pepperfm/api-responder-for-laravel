@@ -10,7 +10,7 @@ final readonly class MetaResolver
     {
     }
 
-    public function handle(): array
+    public function __invoke(): array
     {
         $data = [];
         $meta = [];

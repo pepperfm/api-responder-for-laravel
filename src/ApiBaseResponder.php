@@ -6,6 +6,7 @@ namespace Pepperfm\ApiBaseResponder;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
+use Pepperfm\ApiBaseResponder\Attributes\ValidateRestMethod;
 use Pepperfm\ApiBaseResponder\Contracts\ResponseContract;
 
 class ApiBaseResponder implements ResponseContract
@@ -21,14 +22,20 @@ class ApiBaseResponder implements ResponseContract
     /**
      * @inheritdoc
      */
+    #[ValidateRestMethod]
     public function response(
         array|Collection $data,
         array $meta = [],
         string $message = 'Success',
         int $httpStatusCode = JsonResponse::HTTP_OK
     ): JsonResponse {
+        $callerFunctionName = data_get(debug_backtrace(), '1.function');
+        /** @var ValidateRestMethod $attribute */
+        $attribute = head((new \ReflectionClass($this))->getMethod('response')->getAttributes())->newInstance();
+        $key = $attribute->getDataKey($callerFunctionName);
+
         return response()->json([
-            'entities' => $data,
+            $key => $data,
             'meta' => $meta,
             'message' => $message,
         ], $httpStatusCode, $this->headers, JSON_UNESCAPED_UNICODE);
@@ -44,7 +51,7 @@ class ApiBaseResponder implements ResponseContract
         mixed $data = null
     ): JsonResponse {
         return response()->json([
-            'data' => $data,
+            'entities' => $data,
             'message' => $message,
             'errors' => $errors,
         ], $httpStatusCode, $this->headers, JSON_UNESCAPED_UNICODE);
@@ -56,7 +63,7 @@ class ApiBaseResponder implements ResponseContract
         string $message = 'Success',
         int $httpStatusCode = JsonResponse::HTTP_OK
     ): JsonResponse {
-        $metaData = (new MetaResolver($data, $meta))->handle();
+        $metaData = rescue(new MetaResolver($data, $meta));
 
         return $this->response($metaData['data'], $metaData['meta'], $message, $httpStatusCode);
     }
