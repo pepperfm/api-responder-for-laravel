@@ -116,8 +116,9 @@ The package recognizes which method it was used from, and, according to REST, if
 ```
 response.data.entity
 ```
+You can customize methods that should return this format in config file
 
-####  This setting can be changed in the configuration file, and you will always receive the general format `response.data.entities`
+### Check the configuration file and change the flag to always receive the general format `response.data.entities`
 
 ---
 
