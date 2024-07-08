@@ -61,36 +61,32 @@ public function index(Request $request)
 ```
 or
 ```php
+public function index(Request $request)
+{
+    $users = User::query()->whereIn('id', $request->input('ids'))->paginate();
+    $dtoCollection = $users->getCollection()->mapInto(UserDto::class);
+
+    return $this->json->paginated($dtoCollection->toArray(), $users);
+}
+
 public function index(Request $request, ResponseContract $json)
 {
     return $json->response($users);
 }
-```
-or
-```php
+
 public function index(Request $request)
 {
-    return app(ResponseContract::class)->response($users);
+    return resolve(ResponseContract::class)->response($users);
 }
 ```
 ### Or would you prefer facades?
 ```php
-public function index(Request $request)
-{
-    return \ApiBaseResponder::response($users);
-}
-```
-or
-```php
-use Pepperfm\ApiBaseResponder\Facades\BaseResponse;
-
-public function index(Request $request)
-{
-    return BaseResponse::response($users);
-}
+return \ApiBaseResponder::response($users);
+return BaseResponse::response($users);
 ```
 
 ## Paginated data in response
+
 The helper-function `paginate` accepts one argument of `LengthAwarePaginator` type in backend and returns object of format:
 ```ts
 export interface ProductResponseMeta {
@@ -116,9 +112,24 @@ The package recognizes which method it was used from, and, according to REST, if
 ```
 response.data.entity
 ```
-You can customize methods that should return this format in config file
+You can customize methods that should return this format in config file, as well **any data-key you like**
 
-### Check the configuration file and change the flag to always receive the general format `response.data.entities`
+It's also possible to set any response data-key to any method you need, just add attribute under controller's method `ResponseDataKey` to set `response.data.entity` key, or pass any string as parameter:
+```php
+#[ResponseDataKey]
+public function attributeWithoutParam(): JsonResponse
+{
+    return $this->json->response($this->someUser); // response.data.entity
+}
+
+#[ResponseDataKey('random_key')]
+public function attributeWithParam(): JsonResponse
+{
+    return $this->json->response($this->someUser); // response.data.random_key
+}
+```
+
+### Check the configuration file to customize response wrapping as you prefer
 
 ---
 

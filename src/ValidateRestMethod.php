@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Pepperfm\ApiBaseResponder;
 
-use Pepperfm\ApiBaseResponder\Attributes\CustomDataKey;
+use Pepperfm\ApiBaseResponder\Attributes\ResponseDataKey;
 
 final readonly class ValidateRestMethod
 {
@@ -19,10 +19,10 @@ final readonly class ValidateRestMethod
 
         /** @var \ReflectionAttribute|null $attribute */
         $attribute = collect($callerFunction->getAttributes())->filter(
-            static fn(\ReflectionAttribute $item) => $item->getName() === CustomDataKey::class
+            static fn(\ReflectionAttribute $item) => $item->getName() === ResponseDataKey::class
         )->first();
 
-        /** @var CustomDataKey|null $customDataKey */
+        /** @var ResponseDataKey|null $customDataKey */
         $customDataKey = $attribute?->newInstance();
         if ($customDataKey?->key()) {
             return $customDataKey->key();
