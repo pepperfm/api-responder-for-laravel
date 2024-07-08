@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Pepperfm\ApiBaseResponder;
 
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Collection;
+use Illuminate\Contracts\Support\Arrayable;
 use Pepperfm\ApiBaseResponder\Attributes\ValidateRestMethod;
 use Pepperfm\ApiBaseResponder\Contracts\ResponseContract;
 
@@ -24,7 +24,7 @@ class ApiBaseResponder implements ResponseContract
      */
     #[ValidateRestMethod]
     public function response(
-        array|Collection $data,
+        array|Arrayable $data,
         array $meta = [],
         string $message = 'Success',
         int $httpStatusCode = JsonResponse::HTTP_OK

@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Pepperfm\ApiBaseResponder\Contracts;
 
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Collection;
+use Illuminate\Contracts\Support\Arrayable;
 
 interface ResponseContract
 {
     /**
      * Success response method
      *
-     * @param array|Collection $data
+     * @param array|Arrayable $data
      * @param array $meta
      * @param string $message
      * @param int $httpStatusCode
@@ -20,7 +20,7 @@ interface ResponseContract
      * @return JsonResponse
      */
     public function response(
-        array|Collection $data,
+        array|Arrayable $data,
         array $meta = [],
         string $message = 'Success',
         int $httpStatusCode = JsonResponse::HTTP_OK,
