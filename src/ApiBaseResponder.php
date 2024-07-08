@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Pepperfm\ApiBaseResponder;
 
-use Illuminate\Http\JsonResponse;
 use Illuminate\Contracts\Support\Arrayable;
-use Pepperfm\ApiBaseResponder\Attributes\ValidateRestMethod;
+use Illuminate\Http\JsonResponse;
 use Pepperfm\ApiBaseResponder\Contracts\ResponseContract;
 
 class ApiBaseResponder implements ResponseContract
@@ -22,17 +21,16 @@ class ApiBaseResponder implements ResponseContract
     /**
      * @inheritdoc
      */
-    #[ValidateRestMethod]
     public function response(
         array|Arrayable $data,
         array $meta = [],
         string $message = 'Success',
         int $httpStatusCode = JsonResponse::HTTP_OK
     ): JsonResponse {
-        $callerFunctionName = data_get(debug_backtrace(), '1.function');
-        /** @var ValidateRestMethod $attribute */
-        $attribute = head((new \ReflectionClass($this))->getMethod('response')->getAttributes())->newInstance();
-        $key = $attribute->getDataKey($callerFunctionName);
+        $callStackTrace = data_get(debug_backtrace(), '1');
+        $callerFunction = new \ReflectionMethod($callStackTrace['class'], $callStackTrace['function']);
+
+        $key = ValidateRestMethod::make()->getDataKey($callerFunction);
 
         return response()->json([
             $key => $data,
