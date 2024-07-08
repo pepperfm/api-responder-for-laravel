@@ -17,7 +17,7 @@ composer require pepperfm/api-responder-for-laravel
 ## Usage
 ### Simply using by laravel DI features.
 
-### In **use** section:
+### In use section:
 
 `use Pepperfm\ApiBaseResponder\Contracts\ResponseContract;`
 
@@ -35,7 +35,6 @@ public function index(Request $request)
     return $this->json->response($users);
 }
 ```
-
 for pagination
 ```php
 /*
@@ -48,7 +47,6 @@ public function index(Request $request)
     return $this->json->paginated($users);
 }
 ```
-
 with some data mapping
 ```php
 public function index(Request $request)
@@ -119,13 +117,13 @@ It's also possible to set any response data-key to any method you need, just add
 #[ResponseDataKey]
 public function attributeWithoutParam(): JsonResponse
 {
-    return $this->json->response($this->someUser); // response.data.entity
+    return $this->json->response($this->user); // response.data.entity
 }
 
 #[ResponseDataKey('random_key')]
 public function attributeWithParam(): JsonResponse
 {
-    return $this->json->response($this->someUser); // response.data.random_key
+    return $this->json->response($this->user); // response.data.random_key
 }
 ```
 
@@ -166,6 +164,7 @@ If you discover any security related issues, please email Damon3453@yandex.ru in
 ## Credits
 
 -   [Dmitry Gaponenko](https://github.com/pepperfm)
+-   [Website](https://pepperfm.ru)
 
 ## License
 
