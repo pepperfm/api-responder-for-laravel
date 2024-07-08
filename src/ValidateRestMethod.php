@@ -15,7 +15,7 @@ final readonly class ValidateRestMethod
 
     public function getDataKey(\ReflectionMethod $callerFunction): string
     {
-        $methodsForSingularKey = config('laravel-api-responder.methods_for_singular_key');
+        $methodsForSingularKey = config('laravel-api-responder.methods_for_singular_key', ['show', 'update']);
 
         /** @var \ReflectionAttribute|null $attribute */
         $attribute = collect($callerFunction->getAttributes())->filter(
