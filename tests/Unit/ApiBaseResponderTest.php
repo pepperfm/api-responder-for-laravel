@@ -41,7 +41,7 @@ test('response format', function ($responseData) {
     'entities collection' => collect([range(1, 10), range(2, 5), range(4, 9), 'key' => [1, 'value']]),
 ]);
 
-test('flexible data keys', function (string $method, string $expectedKey, bool $configState) {
+test('flexible data keys', function (string $method, string $expectedKey, bool $configState = true) {
     config()->set('laravel-api-responder.using_for_rest', $configState);
 
     /** @var ExampleController $controller */
@@ -52,13 +52,20 @@ test('flexible data keys', function (string $method, string $expectedKey, bool $
 
     expect($response)->toHaveKeys([$expectedKey, 'meta', 'message']);
 })->with([
-    'ON config state: plural for index' => ['index', 'entities', true],
-    'ON config state: plural for random method name' => ['omg', 'entities', true],
-    'ON config state: singular for show' => ['show', 'entity', true],
-    'ON config state: singular for edit' => ['edit', 'entity', true],
+    'ON config state: plural for index' => ['index', 'entities'],
+    'ON config state: plural for random method name' => ['omg', 'entities'],
+    'ON config state: singular for show' => ['show', 'entity'],
+    'ON config state: singular for edit' => ['update', 'entity'],
 
     'OFF config state: plural for index' => ['index', 'entities', false],
     'OFF config state: plural for random method name' => ['omg', 'entities', false],
     'OFF config state: singular for show' => ['show', 'entities', false],
-    'OFF config state: singular for edit' => ['edit', 'entities', false],
+    'OFF config state: singular for edit' => ['update', 'entities', false],
+
+    'attribute without parameter' => ['attributeWithoutParam', 'entity'],
+    'attribute without parameter and config ON' => ['attributeWithoutParam', 'entity'],
+    'attribute without parameter and config OFF' => ['attributeWithoutParam', 'entity', false],
+    'attribute with parameter' => ['attributeWithParam', 'random_key'],
+    'attribute with parameter and config ON' => ['attributeWithParam', 'random_key'],
+    'attribute with parameter and config OFF' => ['attributeWithParam', 'random_key', false],
 ]);
