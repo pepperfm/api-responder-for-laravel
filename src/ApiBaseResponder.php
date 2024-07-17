@@ -32,6 +32,10 @@ class ApiBaseResponder implements ResponseContract
 
         $key = ValidateRestMethod::make()->getDataKey($callerFunction);
 
+        if ($data instanceof Arrayable) {
+            $data = $data->toArray();
+        }
+
         return response()->json([
             $key => $data,
             'meta' => $meta,
