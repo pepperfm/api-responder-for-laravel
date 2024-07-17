@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Pepperfm\ApiBaseResponder\Tests\Unit;
+namespace Pepperfm\ApiBaseResponder\Tests\Fixtures;
 
 use Illuminate\Http\JsonResponse;
 use Pepperfm\ApiBaseResponder\Attributes\ResponseDataKey;

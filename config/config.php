@@ -10,4 +10,6 @@ return [
     'using_for_rest' => true,
 
     'methods_for_singular_key' => ['show', 'update'],
+
+    'force_json_response_header' => true,
 ];

@@ -6,9 +6,9 @@ use Mockery\MockInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;
 use Pepperfm\ApiBaseResponder\Contracts\ResponseContract;
-use Pepperfm\ApiBaseResponder\Tests\Unit\ExampleController;
+use Pepperfm\ApiBaseResponder\Tests\Fixtures\ExampleController;
 
-use function Pest\Laravel\instance;
+use function Pest\Laravel\{instance, getJson};
 
 test('response format', function ($responseData) {
     instance(
@@ -69,3 +69,9 @@ test('flexible data keys', function (string $method, string $expectedKey, bool $
     'attribute with parameter and config ON' => ['attributeWithParam', 'random_key'],
     'attribute with parameter and config OFF' => ['attributeWithParam', 'random_key', false],
 ]);
+
+test('force json headers', function () {
+    $response = getJson(route('api.users.index'));
+
+    expect($response->headers->get('content-type'))->toBe('application/json; charset=UTF-8');
+});
