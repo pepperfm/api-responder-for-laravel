@@ -46,10 +46,8 @@ class ApiBaseResponder implements ResponseContract
         string $message = 'Error',
         int $httpStatusCode = JsonResponse::HTTP_INTERNAL_SERVER_ERROR,
         mixed $errors = null,
-        mixed $data = null
     ): JsonResponse {
         return response()->json([
-            'entities' => $data,
             'message' => $message,
             'errors' => $errors,
         ], $httpStatusCode, $this->headers, JSON_UNESCAPED_UNICODE);

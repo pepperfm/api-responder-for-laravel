@@ -32,7 +32,6 @@ interface ResponseContract
      * @param string $message
      * @param int $httpStatusCode
      * @param ?mixed $errors
-     * @param ?mixed $data
      *
      * @return JsonResponse
      */
@@ -40,6 +39,5 @@ interface ResponseContract
         string $message = 'Error',
         int $httpStatusCode = JsonResponse::HTTP_INTERNAL_SERVER_ERROR,
         mixed $errors = null,
-        mixed $data = null
     ): JsonResponse;
 }
