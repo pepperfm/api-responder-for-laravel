@@ -8,21 +8,76 @@ on:
 
 jobs:
     pint:
-        runs-on: ubuntu-latest
+        runs-on: ${{ matrix.os }}
+        name: Laravel-pint
+        strategy:
+            fail-fast: true
+            matrix:
+                os: [ubuntu-latest]
+                php: [8.3]
+                laravel: [11.*]
+                stability: [prefer-lowest, prefer-stable]
+                include:
+                    - laravel: 11.*
+                      testbench: ^8.5
+
         steps:
-            - name: "laravel-pint"
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php }}
+                  extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick, fileinfo
+                  coverage: none
+
+            - name: Setup problem matchers
               run: |
-                  vendor/bin/pest -v --test
+                  echo "::add-matcher::${{ runner.tool_cache }}/php.json"
+                  echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+            - name: Install dependencies
+              run: |
+                  composer i --no-interaction
+                  composer update --${{ matrix.stability }} --prefer-dist --no-interaction
+            - name: Execute pint
+              run: vendor/bin/pest -v --test
 
     php-cs-fixer:
+        runs-on: ${{ matrix.os }}
         name: PHP-CS-Fixer
-        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: true
+            matrix:
+                os: [ubuntu-latest]
+                php: [8.3]
+                laravel: [11.*]
+                stability: [prefer-lowest, prefer-stable]
+                include:
+                    - laravel: 11.*
+                      testbench: ^8.5
         steps:
-          - uses: actions/checkout@v4
+            - name: Checkout code
+              uses: actions/checkout@v4
 
-          - name: Run PHP-CS-Fixer
-            run: |
-                vendor/bin/php-cs-fixer check
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php }}
+                  extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick, fileinfo
+                  coverage: none
+
+            - name: Setup problem matchers
+              run: |
+                  echo "::add-matcher::${{ runner.tool_cache }}/php.json"
+                  echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+            - name: Install dependencies
+              run: |
+                  composer i --no-interaction
+                  composer update --${{ matrix.stability }} --prefer-dist --no-interaction
+            - name: Execute fixer
+              run: vendor/bin/php-cs-fixer check
+
 
     test:
         runs-on: ${{ matrix.os }}
