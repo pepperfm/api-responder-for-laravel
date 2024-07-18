@@ -5,8 +5,12 @@ on:
     branches: ["master"]
   workflow_dispatch:
 
+permissions:
+  id-token: write
+  pages: write
+
 env:
-  INSTANCE: 'Writerside/g'
+  INSTANCE: 'Writerside/hi'
   ARTIFACT: 'webHelpG2-all.zip'
   DOCKER_VERSION: '241.18775'
 
@@ -32,6 +36,7 @@ jobs:
           name: docs
           path: |
             artifacts/${{ env.ARTIFACT }}
+            artifacts/report.json
           retention-days: 7
   test:
     needs: build
@@ -47,12 +52,11 @@ jobs:
         uses: JetBrains/writerside-checker-action@v1
         with:
           instance: ${{ env.INSTANCE }}
-
   deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    needs: [ build, test ]
+    needs: [build, test]
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts
