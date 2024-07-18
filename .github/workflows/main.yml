@@ -7,6 +7,30 @@ on:
         branches: [master]
 
 jobs:
+    pint:
+        runs-on: ubuntu-latest
+        steps:
+            - name: "laravel-pint"
+              run: |
+                vendor/bin/pest -v --test
+              with:
+                preset: laravel
+                verboseMode: true
+                testMode: true
+                configPath: "pint.json"
+                pintVersion: 1.8.0
+                onlyDirty: true
+
+    php-cs-fixer:
+        name: PHP-CS-Fixer
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v4
+
+          - name: Run PHP-CS-Fixer
+            run: |
+                vendor/bin/php-cs-fixer check
+
     test:
         runs-on: ${{ matrix.os }}
         strategy:
