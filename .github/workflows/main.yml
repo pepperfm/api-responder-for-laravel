@@ -1,4 +1,4 @@
-name: run-main-flow
+name: run-tests
 
 on:
     push:
@@ -23,19 +23,23 @@ jobs:
         steps:
             - name: Checkout code
               uses: actions/checkout@v2
+
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
               with:
                   php-version: ${{ matrix.php }}
                   extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick, fileinfo
                   coverage: none
+
             - name: Setup problem matchers
               run: |
                   echo "::add-matcher::${{ runner.tool_cache }}/php.json"
                   echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+
             - name: Install dependencies
               run: |
                   composer i --no-interaction
                   composer update --${{ matrix.stability }} --prefer-dist --no-interaction
+
             - name: Execute tests
               run: vendor/bin/pest
