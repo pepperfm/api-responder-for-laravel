@@ -141,13 +141,13 @@ As a result, the response looks like:
 
 ```json
 {
-  response: {
-    data: {
-      entities,
-      meta: {
-        pagination: ...
+  "response": {
+    "data": {
+      "entities": []|{},
+      "meta": {
+        "pagination": IPaginatedResponse<T>
       },
-      message: 'Success'
+      "message": "Success"
     }
   }
 }

@@ -5,8 +5,8 @@
 <instance-profile
     id="g"
     name="Guide"
-    start-page="Tutorial-Ru.md"
+    start-page="Tutorial_en.md"
 >
-    <toc-element topic="Tutorial-Ru.md"/>
-    <toc-element topic="Tutorial-En.md"/>
+    <toc-element topic="Tutorial_ru.md"/>
+    <toc-element topic="Tutorial_en.md"/>
 </instance-profile>
