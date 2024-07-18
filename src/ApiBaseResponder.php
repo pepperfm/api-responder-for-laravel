@@ -32,6 +32,10 @@ class ApiBaseResponder implements ResponseContract
 
         $key = ValidateRestMethod::make()->getDataKey($callerFunction);
 
+        if ($data instanceof Arrayable) {
+            $data = $data->toArray();
+        }
+
         return response()->json([
             $key => $data,
             'meta' => $meta,
@@ -46,10 +50,8 @@ class ApiBaseResponder implements ResponseContract
         string $message = 'Error',
         int $httpStatusCode = JsonResponse::HTTP_INTERNAL_SERVER_ERROR,
         mixed $errors = null,
-        mixed $data = null
     ): JsonResponse {
         return response()->json([
-            'entities' => $data,
             'message' => $message,
             'errors' => $errors,
         ], $httpStatusCode, $this->headers, JSON_UNESCAPED_UNICODE);
