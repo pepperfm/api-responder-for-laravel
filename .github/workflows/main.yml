@@ -13,13 +13,6 @@ jobs:
             - name: "laravel-pint"
               run: |
                   vendor/bin/pest -v --test
-              with:
-                  preset: laravel
-                  verboseMode: true
-                  testMode: true
-                  configPath: "pint.json"
-                  pintVersion: 1.8.0
-                  onlyDirty: true
 
     php-cs-fixer:
         name: PHP-CS-Fixer
