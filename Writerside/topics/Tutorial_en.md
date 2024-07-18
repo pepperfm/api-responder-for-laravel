@@ -85,8 +85,7 @@ public function store(UserService $service)
 ```
 
 As a result, with a successful response, we have the format unpacked as: `response.data.entities`. By default, the format
-is relevant in the context of REST, so for the `show()` and `update()` methods, the response will be in the format:
-`response.data.entity`.
+is relevant in the context of REST, so for the `show()` and `update()` methods, the response will be in the format: `response.data.entity`.
 
 ## Deep Dive
 Of course, for customization enthusiasts and configuration explorers, I also created a code sandbox to play around with.
