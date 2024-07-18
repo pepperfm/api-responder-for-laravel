@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rules SYSTEM "https://resources.jetbrains.com/writerside/1.0/redirection-rules.dtd">
+<rules>
+    <!-- format is as follows
+    <rule id="<unique id>">
+        <accepts>page.html</accepts>
+    </rule>
+    -->
+    <rule id="770b8eda">
+        <description>Created after removal of "How to" from Guide</description>
+        <accepts>How-to.html</accepts>
+    </rule>
+    <rule id="4261196">
+        <description>Created after removal of "How to" from Guide</description>
+        <accepts>How-to.html</accepts>
+    </rule>
+    <rule id="2107bc3b">
+        <description>Created after removal of "About Guide" from Guide</description>
+        <accepts>starter-topic.html</accepts>
+    </rule>
+</rules>
