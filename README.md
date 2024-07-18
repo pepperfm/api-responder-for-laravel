@@ -7,7 +7,7 @@
 ## Easy api responder template using via DI
 
 > [!TIP]
-> <a href="https://pepperfm.github.io/api-responder-for-laravel">Full Package Description</a>: Helpful advice for doing things better or more easily.
+> <a href="https://pepperfm.github.io/api-responder-for-laravel" target="_blank">Full Package Description</a>: Helpful advice for doing things better or more easily.
 
 ## Installation
 
