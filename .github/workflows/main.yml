@@ -1,4 +1,4 @@
-name: run-tests
+name: run-main-flow
 
 on:
     push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
     pint:
-        runs-on: ${{ matrix.os }}
+        runs-on: ubuntu-latest
         name: Laravel-pint
         strategy:
             fail-fast: true
@@ -44,7 +44,7 @@ jobs:
               run: vendor/bin/pest -v --test
 
     php-cs-fixer:
-        runs-on: ${{ matrix.os }}
+        runs-on: ubuntu-latest
         name: PHP-CS-Fixer
         strategy:
             fail-fast: true
