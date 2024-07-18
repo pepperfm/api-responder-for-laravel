@@ -7,6 +7,6 @@
     name="Guide"
     start-page="Tutorial_en.md"
 >
-    <toc-element topic="Tutorial_ru.md"/>
     <toc-element topic="Tutorial_en.md"/>
+    <toc-element topic="Tutorial_ru.md"/>
 </instance-profile>
