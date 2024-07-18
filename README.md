@@ -90,18 +90,19 @@ return BaseResponse::response($users);
 
 The helper-function `paginate` accepts one argument of `LengthAwarePaginator` type in backend and returns object of format:
 ```ts
-export interface ProductResponseMeta {
+export interface IPaginatedResponse<T> {
     current_page: number
     per_page: number
     last_page: number
+    data: T[]
     from: number
     to: number
     total: number
     prev_page_url?: any
     next_page_url: string
-    links: ProductResponseMetaLinks[]
+    links: IPaginatedResponseLinks[]
 }
-export interface ProductResponseMetaLinks {
+export interface IPaginatedResponseLinks {
     url?: any
     label: string
     active: boolean
