@@ -22,7 +22,7 @@
     ],
     "require": {
         "php": "^8.2",
-        "guzzlehttp/guzzle": "^7.8",
+        "guzzlehttp/guzzle": "^7.9",
         "guzzlehttp/psr7": "^2.6",
         "illuminate/database": ">=10.0",
         "illuminate/http": ">=10.0",
