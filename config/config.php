@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Plural Data Key
@@ -63,5 +62,4 @@ return [
     */
 
     'force_json_response_header' => true,
-
 ];
