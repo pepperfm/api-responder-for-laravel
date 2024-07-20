@@ -135,18 +135,6 @@ public function attributeWithParam(): JsonResponse
 
 ---
 
-[//]: # (## Console)
-
-[//]: # (If you want to add `OAuthError&#40;&#41;` method, please, run)
-
-[//]: # (```bash)
-
-[//]: # (php artisan api-responder:init)
-
-[//]: # (```)
-
-[//]: # (command.)
-
 ### Testing
 
 ```bash
