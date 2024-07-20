@@ -4,6 +4,8 @@
 [![Total Downloads](https://img.shields.io/packagist/dt/pepperfm/api-responder-for-laravel.svg?style=flat-square)](https://packagist.org/packages/pepperfm/api-responder-for-laravel)
 ![GitHub Actions](https://github.com/pepperfm/api-responder-for-laravel/actions/workflows/main.yml/badge.svg)
 
+![logo](api_responder.jpg)
+
 ## A simple api response template using via DI
 
 > [!TIP]
