@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Pepperfm\ApiBaseResponder;
 
 use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\CursorPaginator;
 use Illuminate\Http\JsonResponse;
 use Pepperfm\ApiBaseResponder\Contracts\ResponseContract;
 
@@ -32,7 +34,7 @@ class ApiBaseResponder implements ResponseContract
 
         $key = ValidateRestMethod::make()->getDataKey($callerFunction);
 
-        if ($data instanceof Arrayable) {
+        if ($data instanceof Arrayable && (!$data instanceof CursorPaginator || !$data instanceof LengthAwarePaginator)) {
             $data = $data->toArray();
         }
 
@@ -58,8 +60,8 @@ class ApiBaseResponder implements ResponseContract
     }
 
     public function paginated(
-        array|\Illuminate\Pagination\LengthAwarePaginator $data,
-        array|\Illuminate\Pagination\LengthAwarePaginator $meta = [],
+        array|Arrayable|LengthAwarePaginator|CursorPaginator $data,
+        array|Arrayable|LengthAwarePaginator|CursorPaginator $meta = [],
         string $message = 'Success',
         int $httpStatusCode = JsonResponse::HTTP_OK
     ): JsonResponse {
