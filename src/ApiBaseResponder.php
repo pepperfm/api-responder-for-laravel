@@ -38,8 +38,11 @@ class ApiBaseResponder implements ResponseContract
             $data = $data->toArray();
         }
 
+        $withoutWrapping = config('laravel-api-responder.without_wrapping', false);
+        $formated = $withoutWrapping ? $data : [$key => $data];
+
         return response()->json([
-            $key => $data,
+            ...$formated,
             'meta' => $meta,
             'message' => $message,
         ], $httpStatusCode, $this->headers, JSON_UNESCAPED_UNICODE);

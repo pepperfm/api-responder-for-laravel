@@ -75,3 +75,21 @@ test('force json headers', function () {
 
     expect($response->headers->get('content-type'))->toBe('application/json; charset=UTF-8');
 });
+
+test('without wrapping', function () {
+    config()->set('laravel-api-responder.without_wrapping', true);
+
+    /** @var ExampleController $controller */
+    $controller = $this->app->make(ExampleController::class);
+
+    /** @var JsonResponse $response */
+    $response = $controller->index()->getData(true);
+
+    expect($response)->toHaveKeys([
+        'id',
+        'name',
+        'email',
+        'meta',
+        'message',
+    ]);
+});
