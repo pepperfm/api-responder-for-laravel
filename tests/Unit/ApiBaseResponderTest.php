@@ -83,7 +83,7 @@ test('without wrapping', function () {
     $controller = $this->app->make(ExampleController::class);
 
     /** @var JsonResponse $response */
-    $response = $controller->index()->getData(true);
+    $response = $controller->withoutWrapping()->getData(true);
 
     expect($response)->toHaveKeys([
         'id',
