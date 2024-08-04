@@ -62,4 +62,15 @@ return [
     */
 
     'force_json_response_header' => true,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Disable wrapping of the outer-most resource array.
+    |--------------------------------------------------------------------------
+    |
+    | Enable this option to return response without data_key wrapping.
+    |
+    */
+
+    'without_wrapping' => false,
 ];
