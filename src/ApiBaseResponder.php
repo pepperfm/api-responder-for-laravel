@@ -30,6 +30,15 @@ class ApiBaseResponder implements ResponseContract
         int $httpStatusCode = JsonResponse::HTTP_OK
     ): JsonResponse {
         $callStackTrace = data_get(debug_backtrace(), '1');
+
+        if (str($callStackTrace['function'])->contains('{closure}')) {
+            return response()->json([
+                $data,
+                'meta' => $meta,
+                'message' => $message,
+            ], $httpStatusCode, $this->headers, JSON_UNESCAPED_UNICODE);;
+        }
+
         $callerFunction = new \ReflectionMethod($callStackTrace['class'], $callStackTrace['function']);
 
         $key = ValidateRestMethod::make()->getDataKey($callerFunction);
