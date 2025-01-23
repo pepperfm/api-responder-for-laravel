@@ -94,7 +94,32 @@ class ApiBaseResponder implements ResponseContract
         array $meta = [],
         string $message = 'Stored',
     ): JsonResponse {
-        return $this->response($data, $meta, $message, JsonResponse::HTTP_CREATED);
+        $callStackTrace = data_get(debug_backtrace(), '1');
+
+        if (str($callStackTrace['function'])->contains('{closure}')) {
+            return response()->json([
+                config('laravel-api-responder.plural_data_key', 'entities') => $data,
+                'meta' => $meta,
+                'message' => $message,
+            ], JsonResponse::HTTP_CREATED, $this->headers, JSON_UNESCAPED_UNICODE);
+        }
+
+        $callerFunction = new \ReflectionMethod($callStackTrace['class'], $callStackTrace['function']);
+
+        $key = ValidateRestMethod::make()->getDataKey($callerFunction);
+
+        if ($data instanceof Arrayable && (!$data instanceof CursorPaginator || !$data instanceof LengthAwarePaginator)) {
+            $data = $data->toArray();
+        }
+
+        $withoutWrapping = FormatByWrappingOption::make()->format($callerFunction);
+        $formated = $withoutWrapping ? $data : [$key => $data];
+
+        return response()->json([
+            ...$formated,
+            'meta' => $meta,
+            'message' => $message,
+        ], JsonResponse::HTTP_CREATED, $this->headers, JSON_UNESCAPED_UNICODE);
     }
 
     /**
@@ -107,6 +132,29 @@ class ApiBaseResponder implements ResponseContract
         array $data = [],
         string $message = 'Deleted',
     ): JsonResponse {
-        return $this->response($data, message: $message, httpStatusCode: JsonResponse::HTTP_NO_CONTENT);
+        $callStackTrace = data_get(debug_backtrace(), '1');
+
+        if (str($callStackTrace['function'])->contains('{closure}')) {
+            return response()->json([
+                config('laravel-api-responder.plural_data_key', 'entities') => $data,
+                'message' => $message,
+            ], JsonResponse::HTTP_NO_CONTENT, $this->headers, JSON_UNESCAPED_UNICODE);
+        }
+
+        $callerFunction = new \ReflectionMethod($callStackTrace['class'], $callStackTrace['function']);
+
+        $key = ValidateRestMethod::make()->getDataKey($callerFunction);
+
+        if ($data instanceof Arrayable && (!$data instanceof CursorPaginator || !$data instanceof LengthAwarePaginator)) {
+            $data = $data->toArray();
+        }
+
+        $withoutWrapping = FormatByWrappingOption::make()->format($callerFunction);
+        $formated = $withoutWrapping ? $data : [$key => $data];
+
+        return response()->json([
+            ...$formated,
+            'message' => $message,
+        ], JsonResponse::HTTP_NO_CONTENT, $this->headers, JSON_UNESCAPED_UNICODE);
     }
 }
