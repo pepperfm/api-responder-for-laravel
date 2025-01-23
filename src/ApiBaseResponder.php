@@ -74,14 +74,14 @@ class ApiBaseResponder implements ResponseContract
     }
 
     /**
-     * @param array $data
+     * @param array|Arrayable $data
      * @param array $meta
      * @param string $message
      *
      * @return JsonResponse
      */
     public function stored(
-        array $data = [],
+        array|Arrayable $data = [],
         array $meta = [],
         string $message = 'Stored',
     ): JsonResponse {
