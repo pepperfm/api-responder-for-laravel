@@ -6,6 +6,7 @@ namespace Pepperfm\ApiBaseResponder\Tests\Fixtures;
 
 use Illuminate\Http\JsonResponse;
 use Pepperfm\ApiBaseResponder\Attributes\ResponseDataKey;
+use Pepperfm\ApiBaseResponder\Attributes\WithoutWrapping;
 use Pepperfm\ApiBaseResponder\Contracts\ResponseContract;
 
 class ExampleController
@@ -49,6 +50,12 @@ class ExampleController
 
     #[ResponseDataKey('random_key')]
     public function attributeWithParam(): JsonResponse
+    {
+        return $this->json->response($this->someUser);
+    }
+
+    #[WithoutWrapping]
+    public function withoutWrapping(): JsonResponse
     {
         return $this->json->response($this->someUser);
     }
