@@ -74,7 +74,7 @@ class ApiBaseResponder implements ResponseContract
     }
 
     /**
-     * @param array $data
+     * @param array|Arrayable $data
      * @param array $meta
      * @param string $message
      *
