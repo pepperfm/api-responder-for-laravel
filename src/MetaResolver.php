@@ -32,14 +32,18 @@ final readonly class MetaResolver
             (is_array($this->meta) || $this->meta instanceof Collection)
         ) {
             $data = $this->data->getCollection();
-            $meta = array_merge($this->meta, paginate($this->data));
+            $meta = array_merge($this->meta, [
+                'pagination' => paginate($this->data),
+            ]);
         }
         if (
             (is_array($this->data) || $this->data instanceof Collection) &&
             ($this->meta instanceof LengthAwarePaginator || $this->meta instanceof CursorPaginator)
         ) {
             $data = $this->data;
-            $meta = paginate($this->meta);
+            $meta = [
+                'pagination' => paginate($this->meta),
+            ];
         }
 
         return [
