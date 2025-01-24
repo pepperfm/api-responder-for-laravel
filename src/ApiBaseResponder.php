@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Pepperfm\ApiBaseResponder;
 
 use Illuminate\Contracts\Support\Arrayable;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Pagination\CursorPaginator;
+use Illuminate\Contracts\Pagination\CursorPaginator;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\JsonResponse;
 use Pepperfm\ApiBaseResponder\Contracts\ResponseContract;
 

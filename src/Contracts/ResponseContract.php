@@ -6,10 +6,11 @@ namespace Pepperfm\ApiBaseResponder\Contracts;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Contracts\Support\Arrayable;
-use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Contracts\Pagination\CursorPaginator;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 /**
- * @method JsonResponse paginate(array|LengthAwarePaginator $data, array|LengthAwarePaginator $meta = [], string $message = 'Success', int $httpStatusCode = JsonResponse::HTTP_OK)
+ * @method JsonResponse paginate(array|Arrayable|LengthAwarePaginator|CursorPaginator $data, array|Arrayable|LengthAwarePaginator|CursorPaginator $meta = [], string $message = 'Success', int $httpStatusCode = JsonResponse::HTTP_OK)
  * @method JsonResponse stored(array|Arrayable $data, array $meta = [], string $message = '')
  * @method JsonResponse deleted(array $data, string $message = '')
  *
