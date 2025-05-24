@@ -3,9 +3,8 @@
 I've noticed that most libraries created for API responses are implemented using traits, and the rest are large
 libraries. These traits implement methods for everything imaginable (response, accepted, created, forbidden...).
 
-As a result, if my controller has 1-2 methods, including such a trait brings a lot of unnecessary clutter into the
-class. In a couple of large libraries with 700+ stars, I see overengineering at the UX level (for me, as a user of the
-library).
+As a result, if my controller only has 1-2 methods, including such a trait brings a lot of unnecessary clutter into the
+class. In a couple of large libraries with 700+ stars, I see overengineering at the UX level (from my perspective as a user of the library).
 
 ### Solution
 Write my own library!
@@ -15,7 +14,7 @@ I decided to create a data processing logic that would require:
 * simplicity of use
 * readability
 
-That is, to get a standardized response, all we need is to return a response via the library object:
+That is, to get a standardized response, all we need to do is return a response via the library object:
 
 ```bash
 composer require pepperfm/api-responder-for-laravel
