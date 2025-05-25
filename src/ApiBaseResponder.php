@@ -31,7 +31,7 @@ class ApiBaseResponder implements ResponseContract
     ): JsonResponse {
         $callStackTrace = data_get(debug_backtrace(), '1');
 
-        if (str($callStackTrace['function'])->contains('{closure}')) {
+        if (str($callStackTrace['function'])->contains('closure')) {
             return response()->json([
                 config('laravel-api-responder.plural_data_key', 'entities') => $data,
                 'meta' => $meta,
