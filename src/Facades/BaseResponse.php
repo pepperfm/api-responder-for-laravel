@@ -6,26 +6,30 @@ namespace Pepperfm\ApiBaseResponder\Facades;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Facade;
-use Illuminate\Support\Collection;
-use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Contracts\Pagination\CursorPaginator;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Pepperfm\ApiBaseResponder\Contracts\ResponseContract;
+use Pepperfm\ApiBaseResponder\ResponseBuilder;
 
 /**
- * @method JsonResponse response(array|Collection $data, array $meta = [], string $message = 'Success', int $httpStatusCode = JsonResponse::HTTP_OK)
- * @method JsonResponse paginate(array|LengthAwarePaginator $data, array|LengthAwarePaginator $meta = [], string $message = 'Success', int $httpStatusCode = JsonResponse::HTTP_OK)
- * @method JsonResponse error(string $message = 'Error', int $httpStatusCode = JsonResponse::HTTP_INTERNAL_SERVER_ERROR, mixed $errors = null, mixed $data = null)
- * @method JsonResponse stored(array $data, array $meta = [], string $message = '')
- * @method JsonResponse deleted(array $data, string $message = '')
+ * Builder API (explicit context):
+ *
+ * @method static ResponseBuilder build() Create a fluent ResponseBuilder
+ * @method static ResponseBuilder forMethod(string $methodName) Builder with explicit REST method
+ * @method static ResponseBuilder withDataKey(string $key) Builder with explicit data key
+ * @method static ResponseBuilder fromAction(?string $class = null, ?string $method = null) Builder configured from PHP attributes
+ *
+ * Direct API (config-based key resolution):
+ * @method static JsonResponse response(array $data, array $meta = [], string $message = 'Success', int $httpStatusCode = JsonResponse::HTTP_OK)
+ * @method static JsonResponse paginated(array|LengthAwarePaginator|CursorPaginator $data, array|LengthAwarePaginator|CursorPaginator $meta = [], string $message = 'Success', int $httpStatusCode = JsonResponse::HTTP_OK)
+ * @method static JsonResponse error(string $message = 'Error', int $httpStatusCode = JsonResponse::HTTP_INTERNAL_SERVER_ERROR, mixed $errors = null)
+ * @method static JsonResponse stored(array $data = [], array $meta = [], string $message = 'Stored')
+ * @method static JsonResponse deleted(array $data = [], string $message = 'Deleted')
  *
  * @see \Pepperfm\ApiBaseResponder\ApiBaseResponder
  */
 class BaseResponse extends Facade
 {
-    /**
-     * Get the registered name of the component.
-     *
-     * @return string
-     */
     protected static function getFacadeAccessor(): string
     {
         return ResponseContract::class;

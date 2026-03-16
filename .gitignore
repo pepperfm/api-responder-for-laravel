@@ -8,3 +8,11 @@ composer.lock
 .env
 workbench
 ray.php
+
+.codex
+.claude
+.agents
+.junie
+.ai-factory*
+.mcp.json
+skills-lock.json

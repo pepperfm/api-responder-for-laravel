@@ -5,42 +5,51 @@ declare(strict_types=1);
 namespace Pepperfm\ApiBaseResponder\Contracts;
 
 use Illuminate\Http\JsonResponse;
-use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Pagination\CursorPaginator;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Pepperfm\ApiBaseResponder\ResponseBuilder;
 
 /**
- * @method JsonResponse paginate(array|Arrayable|LengthAwarePaginator|CursorPaginator $data, array|Arrayable|LengthAwarePaginator|CursorPaginator $meta = [], string $message = 'Success', int $httpStatusCode = JsonResponse::HTTP_OK)
- * @method JsonResponse stored(array|Arrayable $data, array $meta = [], string $message = '')
- * @method JsonResponse deleted(array $data, string $message = '')
+ * @method JsonResponse paginated(array|LengthAwarePaginator|CursorPaginator $data, array|LengthAwarePaginator|CursorPaginator $meta = [], string $message = 'Success', int $httpStatusCode = JsonResponse::HTTP_OK)
+ * @method JsonResponse stored(array $data = [], array $meta = [], string $message = 'Stored')
+ * @method JsonResponse deleted(array $data = [], string $message = 'Deleted')
+ * @method ResponseBuilder build()
+ * @method ResponseBuilder forMethod(string $methodName)
+ * @method ResponseBuilder withDataKey(string $key)
+ * @method ResponseBuilder fromAction(?string $class = null, ?string $method = null)
  *
  * @mixin \Pepperfm\ApiBaseResponder\ApiBaseResponder
  */
 interface ResponseContract
 {
     /**
-     * Success response method
+     * Success response.
      *
-     * @param array|Arrayable $data
-     * @param array $meta
-     * @param string $message
-     * @param int $httpStatusCode
+     * Returns JSON: {"<data_key>": [...], "meta": [...], "message": "..."}
+     * Data key resolved from config. Use ResponseBuilder for fine-grained control.
+     *
+     * @param array $data Response payload
+     * @param array $meta Additional metadata
+     * @param string $message Human-readable message
+     * @param int $httpStatusCode HTTP status code
      *
      * @return JsonResponse
      */
     public function response(
-        array|Arrayable $data,
+        array $data,
         array $meta = [],
         string $message = 'Success',
         int $httpStatusCode = JsonResponse::HTTP_OK,
     ): JsonResponse;
 
     /**
-     * Error response method
+     * Error response.
      *
-     * @param string $message
-     * @param int $httpStatusCode
-     * @param ?mixed $errors
+     * Returns JSON: {"message": "...", "errors": ...}
+     *
+     * @param string $message Error message
+     * @param int $httpStatusCode HTTP status code (default 500)
+     * @param mixed $errors Error details (validation errors, exception info, etc.)
      *
      * @return JsonResponse
      */

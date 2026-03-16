@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Pepperfm\ApiBaseResponder\Tests\Fixtures;
 
 use Illuminate\Http\JsonResponse;
-use Pepperfm\ApiBaseResponder\Attributes\ResponseDataKey;
-use Pepperfm\ApiBaseResponder\Attributes\WithoutWrapping;
 use Pepperfm\ApiBaseResponder\Contracts\ResponseContract;
 
 class ExampleController
@@ -24,39 +22,36 @@ class ExampleController
 
     public function index(): JsonResponse
     {
-        return $this->json->response($this->someUser);
+        return $this->json->forMethod('index')->response($this->someUser);
     }
 
     public function omg(): JsonResponse
     {
-        return $this->json->response($this->someUser);
+        return $this->json->forMethod('omg')->response($this->someUser);
     }
 
     public function show(): JsonResponse
     {
-        return $this->json->response($this->someUser);
+        return $this->json->forMethod('show')->response($this->someUser);
     }
 
     public function update(): JsonResponse
     {
-        return $this->json->response($this->someUser);
+        return $this->json->forMethod('update')->response($this->someUser);
     }
 
-    #[ResponseDataKey]
     public function attributeWithoutParam(): JsonResponse
     {
-        return $this->json->response($this->someUser);
+        return $this->json->withDataKey('entity')->response($this->someUser);
     }
 
-    #[ResponseDataKey('random_key')]
     public function attributeWithParam(): JsonResponse
     {
-        return $this->json->response($this->someUser);
+        return $this->json->withDataKey('random_key')->response($this->someUser);
     }
 
-    #[WithoutWrapping]
     public function withoutWrapping(): JsonResponse
     {
-        return $this->json->response($this->someUser);
+        return $this->json->build()->withoutWrapping()->response($this->someUser);
     }
 }

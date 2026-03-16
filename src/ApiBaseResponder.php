@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Pepperfm\ApiBaseResponder;
 
-use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Pagination\CursorPaginator;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\JsonResponse;
@@ -20,41 +19,66 @@ class ApiBaseResponder implements ResponseContract
         return new static();
     }
 
+    /*
+     * Create a fluent ResponseBuilder for fine-grained control.
+     *
+     * Usage:
+     *   $this->json->build()->forMethod('index')->response($data);
+     *   $this->json->build()->withDataKey('users')->response($data);
+     *   $this->json->build()->withoutWrapping()->response($data);
+     */
+    public function build(): ResponseBuilder
+    {
+        return ResponseBuilder::make();
+    }
+
+    /**
+     * Shortcut: set explicit REST method name on a new builder.
+     *
+     * @param string $methodName
+     */
+    public function forMethod(string $methodName): ResponseBuilder
+    {
+        return $this->build()->forMethod($methodName);
+    }
+
+    /**
+     * Shortcut: set explicit data key on a new builder.
+     *
+     * @param string $key
+     */
+    public function withDataKey(string $key): ResponseBuilder
+    {
+        return $this->build()->withDataKey($key);
+    }
+
+    /**
+     * Shortcut: configure builder from PHP attributes on the calling controller method.
+     *
+     * @param class-string|null $class
+     * @param string|null $method
+     */
+    public function fromAction(?string $class = null, ?string $method = null): ResponseBuilder
+    {
+        if ($class === null || $method === null) {
+            $caller = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1];
+            $class ??= $caller['class'];
+            $method ??= $caller['function'];
+        }
+
+        return $this->build()->fromAction($class, $method);
+    }
+
     /**
      * @inheritdoc
      */
     public function response(
-        array|Arrayable $data,
+        array $data,
         array $meta = [],
         string $message = 'Success',
         int $httpStatusCode = JsonResponse::HTTP_OK
     ): JsonResponse {
-        $callStackTrace = data_get(debug_backtrace(), '1');
-
-        if (str($callStackTrace['function'])->contains('closure')) {
-            return response()->json([
-                config('laravel-api-responder.plural_data_key', 'entities') => $data,
-                'meta' => $meta,
-                'message' => $message,
-            ], $httpStatusCode, $this->headers, JSON_UNESCAPED_UNICODE);;
-        }
-
-        $callerFunction = new \ReflectionMethod($callStackTrace['class'], $callStackTrace['function']);
-
-        $key = ValidateRestMethod::make()->getDataKey($callerFunction);
-
-        if ($data instanceof Arrayable && (!$data instanceof CursorPaginator || !$data instanceof LengthAwarePaginator)) {
-            $data = $data->toArray();
-        }
-
-        $withoutWrapping = FormatByWrappingOption::make()->format($callerFunction);
-        $formated = $withoutWrapping ? $data : [$key => $data];
-
-        return response()->json([
-            ...$formated,
-            'meta' => $meta,
-            'message' => $message,
-        ], $httpStatusCode, $this->headers, JSON_UNESCAPED_UNICODE);
+        return $this->buildJsonResponse($data, $meta, $message, $httpStatusCode);
     }
 
     /**
@@ -71,90 +95,65 @@ class ApiBaseResponder implements ResponseContract
         ], $httpStatusCode, $this->headers, JSON_UNESCAPED_UNICODE);
     }
 
+    /**
+     * @inheritdoc
+     */
     public function paginated(
-        array|Arrayable|LengthAwarePaginator|CursorPaginator $data,
-        array|Arrayable|LengthAwarePaginator|CursorPaginator $meta = [],
+        array|LengthAwarePaginator|CursorPaginator $data,
+        array|LengthAwarePaginator|CursorPaginator $meta = [],
         string $message = 'Success',
         int $httpStatusCode = JsonResponse::HTTP_OK
     ): JsonResponse {
-        $metaData = rescue(new MetaResolver($data, $meta));
+        $metaData = MetaResolver::resolve($data, $meta);
 
         return $this->response($metaData['data'], $metaData['meta'], $message, $httpStatusCode);
     }
 
     /**
-     * @param array|Arrayable $data
-     * @param array $meta
-     * @param string $message
-     *
-     * @return JsonResponse
+     * @inheritdoc
      */
     public function stored(
-        array|Arrayable $data = [],
+        array $data = [],
         array $meta = [],
         string $message = 'Stored',
     ): JsonResponse {
-        $callStackTrace = data_get(debug_backtrace(), '1');
-
-        if (str($callStackTrace['function'])->contains('{closure}')) {
-            return response()->json([
-                config('laravel-api-responder.plural_data_key', 'entities') => $data,
-                'meta' => $meta,
-                'message' => $message,
-            ], JsonResponse::HTTP_CREATED, $this->headers, JSON_UNESCAPED_UNICODE);
-        }
-
-        $callerFunction = new \ReflectionMethod($callStackTrace['class'], $callStackTrace['function']);
-
-        $key = ValidateRestMethod::make()->getDataKey($callerFunction);
-
-        if ($data instanceof Arrayable && (!$data instanceof CursorPaginator || !$data instanceof LengthAwarePaginator)) {
-            $data = $data->toArray();
-        }
-
-        $withoutWrapping = FormatByWrappingOption::make()->format($callerFunction);
-        $formated = $withoutWrapping ? $data : [$key => $data];
-
-        return response()->json([
-            ...$formated,
-            'meta' => $meta,
-            'message' => $message,
-        ], JsonResponse::HTTP_CREATED, $this->headers, JSON_UNESCAPED_UNICODE);
+        return $this->buildJsonResponse($data, $meta, $message, JsonResponse::HTTP_CREATED);
     }
 
     /**
-     * @param array $data
-     * @param string $message
-     *
-     * @return JsonResponse
+     * @inheritdoc
      */
     public function deleted(
         array $data = [],
         string $message = 'Deleted',
     ): JsonResponse {
-        $callStackTrace = data_get(debug_backtrace(), '1');
+        return $this->buildJsonResponse($data, [], $message, JsonResponse::HTTP_NO_CONTENT);
+    }
 
-        if (str($callStackTrace['function'])->contains('{closure}')) {
-            return response()->json([
-                config('laravel-api-responder.plural_data_key', 'entities') => $data,
-                'message' => $message,
-            ], JsonResponse::HTTP_NO_CONTENT, $this->headers, JSON_UNESCAPED_UNICODE);
-        }
+    /**
+     * Core JSON response builder — single place for all response construction.
+     * Uses config-based data key resolution (no debug_backtrace).
+     *
+     * @param array $data
+     * @param array $meta
+     * @param string $message
+     * @param int $httpStatusCode
+     */
+    private function buildJsonResponse(
+        array $data,
+        array $meta,
+        string $message,
+        int $httpStatusCode,
+    ): JsonResponse {
+        $withoutWrapping = config('laravel-api-responder.without_wrapping', false);
+        $key = config('laravel-api-responder.plural_data_key', 'entities');
 
-        $callerFunction = new \ReflectionMethod($callStackTrace['class'], $callStackTrace['function']);
-
-        $key = ValidateRestMethod::make()->getDataKey($callerFunction);
-
-        if ($data instanceof Arrayable && (!$data instanceof CursorPaginator || !$data instanceof LengthAwarePaginator)) {
-            $data = $data->toArray();
-        }
-
-        $withoutWrapping = FormatByWrappingOption::make()->format($callerFunction);
-        $formated = $withoutWrapping ? $data : [$key => $data];
+        $formatted = $withoutWrapping ? $data : [$key => $data];
 
         return response()->json([
-            ...$formated,
+            ...$formatted,
+            'meta' => $meta,
             'message' => $message,
-        ], JsonResponse::HTTP_NO_CONTENT, $this->headers, JSON_UNESCAPED_UNICODE);
+        ], $httpStatusCode, $this->headers, JSON_UNESCAPED_UNICODE);
     }
 }
