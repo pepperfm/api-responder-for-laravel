@@ -2,9 +2,9 @@ name: run-tests
 
 on:
     push:
-        branches: [master]
+        branches: [master, 3.x]
     pull_request:
-        branches: [master]
+        branches: [master, 3.x]
 
 jobs:
     test:
@@ -13,22 +13,29 @@ jobs:
             fail-fast: true
             matrix:
                 os: [ubuntu-latest]
-                php: [8.3]
-                laravel: [11.*]
+                php: [8.2, 8.3, 8.4]
+                laravel: [10.*, 11.*, 12.*]
                 stability: [prefer-lowest, prefer-stable]
                 include:
+                    - laravel: 10.*
+                      testbench: 8.*
                     - laravel: 11.*
-                      testbench: ^8.5
+                      testbench: 9.*
+                    - laravel: 12.*
+                      testbench: 10.*
+                exclude:
+                    - php: 8.2
+                      laravel: 12.*
         name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }} - ${{ matrix.os }}
         steps:
             - name: Checkout code
-              uses: actions/checkout@v2
+              uses: actions/checkout@v4
 
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
               with:
                   php-version: ${{ matrix.php }}
-                  extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick, fileinfo
+                  extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, fileinfo
                   coverage: none
 
             - name: Setup problem matchers
@@ -40,6 +47,9 @@ jobs:
               run: |
                   composer i --no-interaction
                   composer update --${{ matrix.stability }} --prefer-dist --no-interaction
+
+            - name: Check code style
+              run: vendor/bin/pint --test
 
             - name: Execute tests
               run: vendor/bin/pest
