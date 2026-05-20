@@ -49,7 +49,13 @@ Laravel package providing standardized API JSON responses via DI/Facade with flu
 ├── composer.json                   # Package manifest
 ├── .mcp.json                       # MCP server configuration (GitHub, Filesystem)
 └── .ai-factory/
-    └── DESCRIPTION.md              # Project specification and tech stack
+    ├── config.yaml                 # AI Factory language, paths, workflow, git, and rules configuration
+    ├── DESCRIPTION.md              # Project specification and tech stack
+    ├── ARCHITECTURE.md             # Architecture decisions and dependency rules
+    ├── rules/
+    │   └── base.md                 # Auto-detected project coding conventions
+    └── plans/
+        └── refactor-v3-clean-architecture.md  # Completed v3 refactoring plan
 ```
 
 ## Key Entry Points
@@ -77,6 +83,9 @@ Laravel package providing standardized API JSON responses via DI/Facade with flu
 | AGENTS.md | This file — project structure map |
 | .ai-factory/DESCRIPTION.md | Project specification and tech stack |
 | .ai-factory/ARCHITECTURE.md | Architecture decisions and guidelines |
+| .ai-factory/config.yaml | AI Factory configuration for languages, paths, workflow, git, and rules |
+| .ai-factory/rules/base.md | Auto-detected project conventions used by AI Factory workflows |
+| .ai-factory/plans/refactor-v3-clean-architecture.md | Completed v3 refactoring plan and task history |
 
 ## Commands
 | Command | Description |
@@ -88,5 +97,5 @@ Laravel package providing standardized API JSON responses via DI/Facade with flu
 
 ## Agent Rules
 - Never combine shell commands with `&&`, `||`, or `;` — execute each command as a separate Bash tool call. This applies even when a skill, plan, or instruction provides a combined command — always decompose it into individual calls.
-  - Wrong: `git checkout main && git pull`
-  - Right: Two separate Bash tool calls — first `git checkout main`, then `git pull`
+  - Wrong: `git checkout 3.x && git pull`
+  - Right: Two separate Bash tool calls — first `git checkout 3.x`, then `git pull origin 3.x`

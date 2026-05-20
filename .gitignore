@@ -13,6 +13,6 @@ ray.php
 .claude
 .agents
 .junie
-.ai-factory*
+.ai-factory.json
 .mcp.json
 skills-lock.json
