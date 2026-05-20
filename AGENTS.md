@@ -3,7 +3,7 @@
 > Project map for AI agents. Keep this file up-to-date as the project evolves.
 
 ## Project Overview
-Laravel package providing standardized API JSON responses via DI/Facade with fluent ResponseBuilder, PHP 8 attribute support, automatic REST-based data-key resolution, and pagination support.
+Laravel package providing standardized API JSON responses via DI/Facade with fluent ResponseBuilder, raw response support, PHP 8 attribute support, automatic REST-based data-key resolution, and pagination support.
 
 ## Tech Stack
 - **Language:** PHP 8.2+
@@ -41,8 +41,8 @@ Laravel package providing standardized API JSON responses via DI/Facade with flu
 │   │   ├── ExampleController.php   # Test controller fixture (forMethod/withDataKey usage)
 │   │   └── AttributeController.php # Test controller fixture (fromAction + PHP attributes)
 │   ├── Unit/
-│   │   ├── ApiBaseResponderTest.php  # Direct API test suite (18 tests)
-│   │   ├── ResponseBuilderTest.php   # ResponseBuilder tests (22 tests)
+│   │   ├── ApiBaseResponderTest.php  # Direct API test suite (19 tests)
+│   │   ├── ResponseBuilderTest.php   # ResponseBuilder tests (23 tests)
 │   │   └── MetaResolverTest.php      # MetaResolver tests (6 tests)
 │   ├── Pest.php                    # Pest configuration
 │   └── TestCase.php                # Base test case (Orchestra Testbench)

@@ -59,6 +59,19 @@ public function destroy(User $user)
 }
 ```
 
+### Raw responses
+
+Use `raw()` when you want the HTTP JSON body to be exactly your payload, without `entities`, `meta`, or `message` envelope fields:
+
+```php
+public function show(User $user)
+{
+    return $this->json->raw($user->toArray());
+}
+```
+
+With Axios, this makes `response.data` equal to the user payload directly.
+
 ### Builder API (explicit control)
 
 Use the fluent builder when you need per-response control over data keys or wrapping:
@@ -145,6 +158,7 @@ return $this->json->error('Validation failed', 422, $validator->errors());
 use Pepperfm\ApiBaseResponder\Facades\BaseResponse;
 
 return BaseResponse::response($data);
+return BaseResponse::raw($data);
 return BaseResponse::forMethod('index')->response($data);
 return BaseResponse::fromAction()->response($data);
 ```

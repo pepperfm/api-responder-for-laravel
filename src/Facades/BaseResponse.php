@@ -21,6 +21,7 @@ use Pepperfm\ApiBaseResponder\ResponseBuilder;
  *
  * Direct API (config-based key resolution):
  * @method static JsonResponse response(array $data, array $meta = [], string $message = 'Success', int $httpStatusCode = JsonResponse::HTTP_OK)
+ * @method static JsonResponse raw(array $data, int $httpStatusCode = JsonResponse::HTTP_OK)
  * @method static JsonResponse paginated(array|LengthAwarePaginator|CursorPaginator $data, array|LengthAwarePaginator|CursorPaginator $meta = [], string $message = 'Success', int $httpStatusCode = JsonResponse::HTTP_OK)
  * @method static JsonResponse error(string $message = 'Error', int $httpStatusCode = JsonResponse::HTTP_INTERNAL_SERVER_ERROR, mixed $errors = null)
  * @method static JsonResponse stored(array $data = [], array $meta = [], string $message = 'Stored')

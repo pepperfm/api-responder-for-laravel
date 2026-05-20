@@ -60,9 +60,10 @@ Forbidden:
 ## Key Principles
 1. **Contract-first:** All public API is defined in `ResponseContract`. Consumers type-hint the interface, never the concrete class.
 2. **Dual API surface:** Direct methods (`response()`, `error()`, `stored()`, `deleted()`) use config-based key resolution. Builder methods (`build()`, `forMethod()`, `withDataKey()`, `fromAction()`) return a fluent `ResponseBuilder` for explicit control.
-3. **No implicit magic:** Core response methods (`response()`, `stored()`, `deleted()`) never use `debug_backtrace()`. The only backtrace usage is in the opt-in `fromAction()` for auto-detecting the caller.
-4. **Configuration over convention override:** Default REST behavior (entity/entities) works out-of-the-box; PHP attributes (`#[ResponseDataKey]`, `#[WithoutWrapping]`) and config options allow overrides without subclassing.
-5. **Minimal dependencies:** The package depends on `guzzlehttp/guzzle` and `guzzlehttp/psr7` at runtime. Laravel framework compatibility is enforced through the `laravel/framework` conflict rule instead of requiring a full application dependency.
+3. **Raw responses are explicit:** `raw()` bypasses envelope fields intentionally; standard response methods keep the package envelope contract.
+4. **No implicit magic:** Core response methods (`response()`, `stored()`, `deleted()`) never use `debug_backtrace()`. The only backtrace usage is in the opt-in `fromAction()` for auto-detecting the caller.
+5. **Configuration over convention override:** Default REST behavior (entity/entities) works out-of-the-box; PHP attributes (`#[ResponseDataKey]`, `#[WithoutWrapping]`) and config options allow overrides without subclassing.
+6. **Minimal dependencies:** The package has no runtime Composer dependencies beyond PHP itself. Laravel framework compatibility is enforced through the `laravel/framework` conflict rule and the package is intended to run inside a compatible Laravel host application.
 
 ## Code Examples
 

@@ -5,6 +5,7 @@ A Laravel package (library) that provides a standardized, configurable API JSON 
 
 ## Core Features
 - Standardized JSON responses for success, error, create (stored), and delete operations
+- Raw JSON responses for endpoints that should return the payload directly without an envelope
 - **Fluent ResponseBuilder API:** `$this->json->forMethod('index')->response($data)` or `$this->json->withDataKey('users')->response($data)` — explicit, testable, no backtrace magic
 - **PHP Attribute support (opt-in):** `#[ResponseDataKey('key')]` and `#[WithoutWrapping]` via `fromAction()` — uses minimal backtrace only when explicitly called
 - Automatic data-key resolution: `entities` (plural) vs `entity` (singular) based on REST method names (`show`, `update`)
@@ -18,7 +19,7 @@ A Laravel package (library) that provides a standardized, configurable API JSON 
 - **Framework:** Laravel >= 10.20 (as a library/package — not an application)
 - **Testing:** Pest 3 + PHPUnit 11
 - **Linting:** PHP CS Fixer + Laravel Pint
-- **Runtime HTTP dependencies:** Guzzle 7 + PSR-7
+- **Runtime dependencies:** PHP 8.2+ and a Laravel 10.20+ host application
 - **Dev Tools:** Orchestra Testbench 9, Spatie Ray
 
 ## Architecture Notes
@@ -36,5 +37,5 @@ Pattern: Layered Architecture (Library Package)
 ## Non-Functional Requirements
 - UTF-8 enforced in all JSON responses (`JSON_UNESCAPED_UNICODE`)
 - Configurable response headers (`Content-Type: application/json; charset=UTF-8`)
-- Minimal dependencies: Guzzle HTTP + PSR-7 as runtime requirements beyond PHP itself
+- Minimal dependencies: no runtime Composer dependencies beyond PHP itself; the package is intended to run inside a compatible Laravel host application
 - Compatible with Laravel 10.20+ (conflict rule prevents older versions)

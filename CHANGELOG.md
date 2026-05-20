@@ -2,6 +2,15 @@
 
 All notable changes to `laravel-api-responder` will be documented in this file
 
+## 3.0.2 - 2026-05-20
+
+### Added
+- `raw(array $data, int $httpStatusCode = 200)` — return the payload directly without `entities`, `meta`, or `message` envelope fields
+
+### Changed
+- Expanded `ResponseContract` to declare the full public responder API directly
+- Removed unused `guzzlehttp/guzzle` and `guzzlehttp/psr7` runtime dependencies
+
 ## 3.0.0 - 2026-XX-XX
 
 ### Breaking Changes

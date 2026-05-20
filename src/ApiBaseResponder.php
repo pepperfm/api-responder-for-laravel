@@ -84,6 +84,16 @@ class ApiBaseResponder implements ResponseContract
     /**
      * @inheritdoc
      */
+    public function raw(
+        array $data,
+        int $httpStatusCode = JsonResponse::HTTP_OK,
+    ): JsonResponse {
+        return response()->json($data, $httpStatusCode, $this->headers, JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function error(
         string $message = 'Error',
         int $httpStatusCode = JsonResponse::HTTP_INTERNAL_SERVER_ERROR,
@@ -99,8 +109,8 @@ class ApiBaseResponder implements ResponseContract
      * @inheritdoc
      */
     public function paginated(
-        array|LengthAwarePaginator|CursorPaginator $data,
-        array|LengthAwarePaginator|CursorPaginator $meta = [],
+        array|CursorPaginator|LengthAwarePaginator $data,
+        array|CursorPaginator|LengthAwarePaginator $meta = [],
         string $message = 'Success',
         int $httpStatusCode = JsonResponse::HTTP_OK
     ): JsonResponse {

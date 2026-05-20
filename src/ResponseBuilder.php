@@ -128,6 +128,21 @@ final class ResponseBuilder
     }
 
     /**
+     * Build a raw JSON response without envelope fields.
+     *
+     * @param array $data
+     * @param int $httpStatusCode
+     *
+     * @return JsonResponse
+     */
+    public function raw(
+        array $data,
+        int $httpStatusCode = JsonResponse::HTTP_OK,
+    ): JsonResponse {
+        return response()->json($data, $httpStatusCode, $this->headers, JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
      * Build a "created" response (HTTP 201).
      *
      * @param array $data

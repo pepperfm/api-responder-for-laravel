@@ -93,3 +93,20 @@ test('without wrapping', function () {
         'message',
     ]);
 });
+
+test('raw returns payload as response body', function () {
+    /** @var ResponseContract $responder */
+    $responder = $this->app->make(ResponseContract::class);
+
+    $response = $responder->raw([
+        'id' => 1,
+        'name' => 'John',
+    ]);
+
+    expect($response->getData(true))
+        ->toBe([
+            'id' => 1,
+            'name' => 'John',
+        ])
+        ->not->toHaveKeys(['entities', 'meta', 'message']);
+});

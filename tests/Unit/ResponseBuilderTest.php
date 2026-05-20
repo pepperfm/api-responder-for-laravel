@@ -127,6 +127,22 @@ test('response with custom message and status code', function () {
         ->and($data['result'])->toBe(['key' => 'value']);
 });
 
+test('raw returns payload without envelope fields', function () {
+    $builder = ResponseBuilder::make()->withDataKey('ignored');
+    $response = $builder->raw([
+        ['id' => 1],
+        ['id' => 2],
+    ], JsonResponse::HTTP_ACCEPTED);
+    $data = $response->getData(true);
+
+    expect($response->getStatusCode())->toBe(JsonResponse::HTTP_ACCEPTED)
+        ->and($data)->toBe([
+            ['id' => 1],
+            ['id' => 2],
+        ])
+        ->and($data)->not->toHaveKeys(['ignored', 'entities', 'meta', 'message']);
+});
+
 test('fromAction reads #[ResponseDataKey] attribute', function () {
     $builder = ResponseBuilder::make()->fromAction(
         \Pepperfm\ApiBaseResponder\Tests\Fixtures\AttributeController::class,
