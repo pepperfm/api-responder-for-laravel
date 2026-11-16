@@ -4,23 +4,17 @@ declare(strict_types=1);
 
 namespace Pepperfm\ApiBaseResponder;
 
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Facade;
+use InvalidArgumentException;
+use LogicException;
 use Pepperfm\ApiBaseResponder\Attributes\ResponseDataKey;
 use Pepperfm\ApiBaseResponder\Attributes\WithoutWrapping;
+use ReflectionMethod;
 
-/*
- * Fluent response builder with explicit data key and wrapping control.
- *
- * Usage:
- *   $this->json->forMethod('index')->response($data);
- *   $this->json->withDataKey('users')->response($data);
- *   $this->json->withoutWrapping()->response($data);
- */
 final class ResponseBuilder
 {
-    /** @var array<string, string> */
-    private array $headers = ['Content-Type' => 'application/json; charset=UTF-8', 'charset' => 'utf-8'];
-
     private ?string $dataKey = null;
 
     private bool $noWrapping = false;
@@ -32,11 +26,6 @@ final class ResponseBuilder
         return new self();
     }
 
-    /**
-     * Set explicit REST method name for data key resolution.
-     *
-     * @param string $methodName
-     */
     public function forMethod(string $methodName): self
     {
         $this->methodName = $methodName;
@@ -44,11 +33,6 @@ final class ResponseBuilder
         return $this;
     }
 
-    /**
-     * Set explicit data key (bypasses REST convention resolution).
-     *
-     * @param string $key
-     */
     public function withDataKey(string $key): self
     {
         $this->dataKey = $key;
@@ -57,50 +41,53 @@ final class ResponseBuilder
     }
 
     /**
-     * Configure builder from PHP attributes on the calling controller method.
-     * Reads #[ResponseDataKey] and #[WithoutWrapping] attributes.
-     *
-     * Usage:
-     *   #[ResponseDataKey('user')]
-     *   public function show(): JsonResponse {
-     *       return $this->json->fromAction()->response($data);
-     *   }
+     * Read action attributes, with optional explicit controller class and method.
+     * Automatic caller detection is opt-in and supports facade calls.
      *
      * @param class-string|null $class
-     * @param string|null $method
      */
     public function fromAction(?string $class = null, ?string $method = null): self
     {
         if ($class === null || $method === null) {
-            $caller = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1];
-            $class ??= $caller['class'];
-            $method ??= $caller['function'];
+            foreach (debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 12) as $frame) {
+                $candidateClass = $frame['class'] ?? null;
+                $candidateMethod = $frame['function'] ?? null;
+
+                if ($candidateClass === null || $candidateMethod === null) {
+                    continue;
+                }
+
+                if (in_array($candidateClass, [self::class, ApiBaseResponder::class], true) ||
+                    is_a($candidateClass, Facade::class, true)) {
+                    continue;
+                }
+
+                $class ??= $candidateClass;
+                $method ??= $candidateMethod;
+                break;
+            }
         }
 
-        $reflection = new \ReflectionMethod($class, $method);
+        if ($class === null || $method === null) {
+            throw new LogicException('Cannot detect the controller action. Pass class and method to fromAction().');
+        }
 
+        $reflection = new ReflectionMethod($class, $method);
         $this->methodName = $method;
 
-        /** @var \ReflectionAttribute|null $dataKeyAttr */
-        $dataKeyAttr = collect($reflection->getAttributes(ResponseDataKey::class))->first();
-        if ($dataKeyAttr !== null) {
-            /** @var ResponseDataKey $instance */
-            $instance = $dataKeyAttr->newInstance();
-            $this->dataKey = $instance->key();
+        $dataKeyAttributes = $reflection->getAttributes(ResponseDataKey::class);
+
+        if ($dataKeyAttributes !== []) {
+            $this->dataKey = $dataKeyAttributes[0]->newInstance()->key();
         }
 
-        /** @var \ReflectionAttribute|null $wrappingAttr */
-        $wrappingAttr = collect($reflection->getAttributes(WithoutWrapping::class))->first();
-        if ($wrappingAttr !== null) {
+        if ($reflection->getAttributes(WithoutWrapping::class) !== []) {
             $this->noWrapping = true;
         }
 
         return $this;
     }
 
-    /*
-     * Disable data-key wrapping (data spread directly into response root).
-     */
     public function withoutWrapping(): self
     {
         $this->noWrapping = true;
@@ -108,18 +95,8 @@ final class ResponseBuilder
         return $this;
     }
 
-    /**
-     * Build a success response.
-     *
-     * @param array $data
-     * @param array $meta
-     * @param string $message
-     * @param int $httpStatusCode
-     *
-     * @return JsonResponse
-     */
     public function response(
-        array $data,
+        array|Arrayable $data,
         array $meta = [],
         string $message = 'Success',
         int $httpStatusCode = JsonResponse::HTTP_OK,
@@ -127,32 +104,15 @@ final class ResponseBuilder
         return $this->buildJsonResponse($data, $meta, $message, $httpStatusCode);
     }
 
-    /**
-     * Build a raw JSON response without envelope fields.
-     *
-     * @param array $data
-     * @param int $httpStatusCode
-     *
-     * @return JsonResponse
-     */
     public function raw(
-        array $data,
+        array|Arrayable $data,
         int $httpStatusCode = JsonResponse::HTTP_OK,
     ): JsonResponse {
-        return response()->json($data, $httpStatusCode, $this->headers, JSON_UNESCAPED_UNICODE);
+        return response()->json($this->toArray($data), $httpStatusCode, [], JSON_UNESCAPED_UNICODE);
     }
 
-    /**
-     * Build a "created" response (HTTP 201).
-     *
-     * @param array $data
-     * @param array $meta
-     * @param string $message
-     *
-     * @return JsonResponse
-     */
     public function stored(
-        array $data = [],
+        array|Arrayable $data = [],
         array $meta = [],
         string $message = 'Stored',
     ): JsonResponse {
@@ -160,70 +120,75 @@ final class ResponseBuilder
     }
 
     /**
-     * Build a "deleted" response (HTTP 204).
-     *
-     * @param array $data
-     * @param string $message
-     *
-     * @return JsonResponse
+     * No Content must not carry a JSON body.
+     * Arguments remain accepted for backward-compatible calls.
      */
     public function deleted(
-        array $data = [],
+        array|Arrayable $data = [],
         string $message = 'Deleted',
     ): JsonResponse {
-        return $this->buildJsonResponse($data, [], $message, JsonResponse::HTTP_NO_CONTENT);
+        return response()->json(null, JsonResponse::HTTP_NO_CONTENT)->setContent('');
     }
 
-    /*
-     * Resolve the data key based on explicit settings or REST conventions.
-     */
     public function resolveDataKey(): string
     {
         if ($this->dataKey !== null) {
             return $this->dataKey;
         }
-        if ($this->methodName !== null) {
-            $methodsForSingularKey = config('laravel-api-responder.methods_for_singular_key', ['show', 'update']);
-            $usingForRest = config('laravel-api-responder.using_for_rest', true);
 
-            if ($usingForRest && in_array($this->methodName, $methodsForSingularKey, true)) {
-                return config('laravel-api-responder.singular_data_key', 'entity');
-            }
+        if ($this->methodName !== null &&
+            config('laravel-api-responder.using_for_rest', true) &&
+            in_array(
+                $this->methodName,
+                config('laravel-api-responder.methods_for_singular_key', ['show', 'update']),
+                true,
+            )) {
+            return config('laravel-api-responder.singular_data_key', 'entity');
         }
 
         return config('laravel-api-responder.plural_data_key', 'entities');
     }
 
-    /*
-     * Check if wrapping should be disabled.
-     */
     public function shouldDisableWrapping(): bool
     {
         return $this->noWrapping || config('laravel-api-responder.without_wrapping', false);
     }
 
-    /**
-     * Core JSON response builder.
-     *
-     * @param array $data
-     * @param array $meta
-     * @param string $message
-     * @param int $httpStatusCode
-     */
     private function buildJsonResponse(
-        array $data,
+        array|Arrayable $data,
         array $meta,
         string $message,
         int $httpStatusCode,
     ): JsonResponse {
-        $formatted = $this->shouldDisableWrapping()
-            ? $data
-            : [$this->resolveDataKey() => $data];
+        $payload = $this->toArray($data);
+
+        if ($this->shouldDisableWrapping()) {
+            if ($payload !== [] && array_is_list($payload)) {
+                throw new InvalidArgumentException('Unwrapped responses require associative data. Use raw() for lists.');
+            }
+
+            foreach (['meta', 'message'] as $reservedKey) {
+                if (array_key_exists($reservedKey, $payload)) {
+                    throw new InvalidArgumentException(
+                        "Unwrapped response data contains reserved key '{$reservedKey}'. Use raw() to preserve it.",
+                    );
+                }
+            }
+
+            $formatted = $payload;
+        } else {
+            $formatted = [$this->resolveDataKey() => $payload];
+        }
 
         return response()->json([
             ...$formatted,
             'meta' => $meta,
             'message' => $message,
-        ], $httpStatusCode, $this->headers, JSON_UNESCAPED_UNICODE);
+        ], $httpStatusCode, [], JSON_UNESCAPED_UNICODE);
+    }
+
+    private function toArray(array|Arrayable $data): array
+    {
+        return $data instanceof Arrayable ? $data->toArray() : $data;
     }
 }

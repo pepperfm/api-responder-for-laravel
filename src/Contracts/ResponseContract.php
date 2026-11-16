@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Pepperfm\ApiBaseResponder\Contracts;
 
 use Illuminate\Http\JsonResponse;
-use Illuminate\Contracts\Pagination\CursorPaginator;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Pagination\CursorPaginator;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Pepperfm\ApiBaseResponder\ResponseBuilder;
 
 /**
@@ -55,7 +57,7 @@ interface ResponseContract
      * Returns JSON: {"<data_key>": [...], "meta": [...], "message": "..."}
      * Data key resolved from config. Use ResponseBuilder for fine-grained control.
      *
-     * @param array $data Response payload
+     * @param array|Arrayable $data Response payload
      * @param array $meta Additional metadata
      * @param string $message Human-readable message
      * @param int $httpStatusCode HTTP status code
@@ -63,7 +65,7 @@ interface ResponseContract
      * @return JsonResponse
      */
     public function response(
-        array $data,
+        array|Arrayable $data,
         array $meta = [],
         string $message = 'Success',
         int $httpStatusCode = JsonResponse::HTTP_OK,
@@ -75,13 +77,13 @@ interface ResponseContract
      * Returns the payload directly as the JSON body without data-key wrapping,
      * meta, or message fields.
      *
-     * @param array $data Response payload
+     * @param array|Arrayable $data Response payload
      * @param int $httpStatusCode HTTP status code
      *
      * @return JsonResponse
      */
     public function raw(
-        array $data,
+        array|Arrayable $data,
         int $httpStatusCode = JsonResponse::HTTP_OK,
     ): JsonResponse;
 
@@ -105,16 +107,16 @@ interface ResponseContract
     /**
      * Success response with pagination metadata resolved from paginator input.
      *
-     * @param array|CursorPaginator|LengthAwarePaginator $data Response payload or paginator
-     * @param array|CursorPaginator|LengthAwarePaginator $meta Additional metadata or paginator
+     * @param array|Arrayable|Paginator|LengthAwarePaginator|CursorPaginator $data Response payload or paginator
+     * @param array|Arrayable|Paginator|LengthAwarePaginator|CursorPaginator $meta Additional metadata or paginator
      * @param string $message Human-readable message
      * @param int $httpStatusCode HTTP status code
      *
      * @return JsonResponse
      */
     public function paginated(
-        array|CursorPaginator|LengthAwarePaginator $data,
-        array|CursorPaginator|LengthAwarePaginator $meta = [],
+        array|Arrayable|Paginator|LengthAwarePaginator|CursorPaginator $data,
+        array|Arrayable|Paginator|LengthAwarePaginator|CursorPaginator $meta = [],
         string $message = 'Success',
         int $httpStatusCode = JsonResponse::HTTP_OK,
     ): JsonResponse;
@@ -122,14 +124,14 @@ interface ResponseContract
     /**
      * Stored response.
      *
-     * @param array $data Response payload
+     * @param array|Arrayable $data Response payload
      * @param array $meta Additional metadata
      * @param string $message Human-readable message
      *
      * @return JsonResponse
      */
     public function stored(
-        array $data = [],
+        array|Arrayable $data = [],
         array $meta = [],
         string $message = 'Stored',
     ): JsonResponse;
@@ -137,13 +139,13 @@ interface ResponseContract
     /**
      * Deleted response.
      *
-     * @param array $data Response payload
+     * @param array|Arrayable $data Response payload
      * @param string $message Human-readable message
      *
      * @return JsonResponse
      */
     public function deleted(
-        array $data = [],
+        array|Arrayable $data = [],
         string $message = 'Deleted',
     ): JsonResponse;
 }

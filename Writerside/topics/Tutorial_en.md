@@ -1,247 +1,108 @@
-# Standardizing API Responses Without Traits
-### Problem
-I've noticed that most libraries created for API responses are implemented using traits, and the rest are large
-libraries. These traits implement methods for everything imaginable (response, accepted, created, forbidden...).
+# Standardizing Laravel JSON Responses Without Traits
 
-As a result, if my controller only has 1-2 methods, including such a trait brings a lot of unnecessary clutter into the
-class. In a couple of large libraries with 700+ stars, I see overengineering at the UX level (from my perspective as a user of the library).
+API Responder formats **outgoing HTTP responses**. It is intentionally not a DTO, transformation, or validation library.
 
-### Solution
-Write my own library!
+**Requirements:** PHP 8.5 and Laravel 13.
 
-I decided to create a data processing logic that would require:
-* minimal actions at the user level
-* simplicity of use
-* readability
-
-That is, to get a standardized response, all we need to do is return a response via the library object:
+## Installation
 
 ```bash
 composer require pepperfm/api-responder-for-laravel
 ```
 
-As a result, the basic minimum we get right after installing the library is:
+## Example
 
-Successful response:
+```php
+use Pepperfm\ApiBaseResponder\Contracts\ResponseContract;
+
+final class UserController
+{
+    public function __construct(private ResponseContract $json) {}
+
+    public function index()
+    {
+        return $this->json->response(User::query()->get(['id', 'name']));
+    }
+
+    public function show(User $user)
+    {
+        return $this->json->withDataKey('user')->response([
+            'id' => $user->id,
+            'name' => $user->name,
+        ]);
+    }
+
+    public function destroy(User $user)
+    {
+        $user->delete();
+
+        return $this->json->deleted();
+    }
+}
+```
+
+The `index()` response has no extra `response.data` wrapper:
 
 ```json
 {
-  "response": {
-    "data": {
-      "entities": []|{},
-      "meta": []|{},
-      "message": "Success"
-    }
-  }
+  "entities": [{"id": 1, "name": "Anna"}],
+  "meta": [],
+  "message": "Success"
 }
 ```
 
-Error response:
+`deleted()` returns **204 No Content** with an empty body. Use an explicit 200 response when the client expects a JSON message.
 
-```json
-{
-  "response": {
-    "data": {
-      "errors": null,
-      "message": "Error"
-    }
-  }
-}
-```
+## Pagination
 
 ```php
-public function __construct(public ResponseContract $json)
-{
-}
+return $this->json->paginated(User::query()->paginate());
+return $this->json->paginated(User::query()->simplePaginate());
+return $this->json->paginated(User::query()->cursorPaginate());
 
-public function index(Request $request)
-{
-    $users = User::query()->get();
+// Map data while retaining the original pagination metadata:
+$paginator = User::query()->paginate();
+$data = $paginator->getCollection()->map(
+    fn ($user) => ['id' => $user->id, 'name' => $user->name],
+);
 
-    return $this->json->response($users);
-}
-
-public function store(UserService $service)
-{
-    try {
-        app('db')->beginTransaction();
-
-        $service->update(request()->input());
-        
-        app('db')->commit();
-    } catch (\Exception $e) {
-        app('db')->rollback();
-        logger()->debug($e->getMessage());
-
-        return $this->json->error(
-            message: $e->getMessage(),
-            httpStatusCode: $e->getCode()
-        );
-    }
-
-    return $this->json->response($users);
-}
+return $this->json->paginated($data, $paginator);
 ```
 
-As a result, with a successful response, we have the format unpacked as: `response.data.entities`. By default, the format
-is relevant in the context of REST, so for the `show()` and `update()` methods, the response will be in the format: `response.data.entity`.
+Pagination details live under `meta.pagination`. Available fields depend on the paginator type.
 
-## Deep Dive
-Of course, for customization enthusiasts and configuration explorers, I also created a code sandbox to play around with.
-
-### Features
-#### Our Favorite Sugar
-A wrapper over the `response()` method for pagination:
+## Other response methods
 
 ```php
-/*
- * Generate response.data.meta.pagination from first argument of `paginated()` method
- */
-public function index(Request $request)
-{
-  $users = User::query()->paginate();
-
-  return $this->json->paginated($users);
-}
+return $this->json->stored(['id' => 42]); // 201
+return $this->json->error('Not found', 404);
+return $this->json->raw(['message' => 'Custom']); // exact JSON payload
+return $this->json->forMethod('show')->response(['id' => 1]);
 ```
 
-The `paginated()` method accepts two main parameters:
+Payloads may be arrays or Laravel `Arrayable` objects, including `Collection`. Prefer API Resources or explicit DTOs for field visibility.
+
+## Attributes and wrapping
 
 ```php
-array|\Illuminate\Pagination\LengthAwarePaginator $data,
-array|\Illuminate\Pagination\LengthAwarePaginator $meta = [],
-```
+use Pepperfm\ApiBaseResponder\Attributes\ResponseDataKey;
+use Pepperfm\ApiBaseResponder\Attributes\WithoutWrapping;
 
-In its logic, it resolves them and adds them to the response under the `meta` key — pagination key.
-
-Response interfaces according to the format returned by Laravel:
-```typescript
-export interface IPaginatedResponse<T> {
-    current_page: number
-    per_page: number
-    last_page: number
-    data: T[]
-    from: number
-    to: number
-    total: number
-    prev_page_url?: any
-    next_page_url: string
-    links: IPaginatedResponseLinks[]
-}
-export interface IPaginatedResponseLinks {
-    url?: any
-    label: string
-    active: boolean
-}
-```
-
-As a result, the response looks like:
-
-```json
+#[ResponseDataKey('user')]
+public function show(User $user)
 {
-  "response": {
-    "data": {
-      "entities": []|{},
-      "meta": {
-        "pagination": IPaginatedResponse<T>
-      },
-      "message": "Success"
-    }
-  }
+    return $this->json->fromAction()->response(['id' => $user->id]);
 }
-```
 
-A wrapper over the `response()` method for status codes:
-
-```php
-public function store(UserService $service)
+#[WithoutWrapping]
+public function stats()
 {
-    // message: 'Stored', httpStatusCode: JsonResponse::HTTP_CREATED
-    return $this->json->stored();
-}
-
-public function destroy()
-{
-    // message: 'Deleted', httpStatusCode: JsonResponse::HTTP_NO_CONTENT
-    return $this->json->deleted();
+    return $this->json->fromAction()->response(['active' => 10]);
 }
 ```
 
-#### Working with Different Parameter Types
-The first argument of the response() method can be of types array|Arrayable, so data can be mapped before passing to the
-method within these types. For example:
+Unwrapped responses reserve the `meta` and `message` keys. Rather than silently overwriting those fields, the builder throws an exception. Use `raw()` for root lists or arbitrary JSON.
 
-```php
-public function index()
-{
-    $users = User::query()->paginate();
-    $dtoCollection = $users->getCollection()->mapInto(UserDto::class);
+The package does **not** mutate incoming `Accept` headers or automatically register middleware. Tests are local (`composer test`, `composer lint`).
 
-    return resolve(ResponseContract::class)->paginated(
-        data: $dtoCollection,
-        meta: $users
-    );
-}
-```
-
-```php
-public function index()
-{
-    $users = SpatieUserData::collect(User::query()->get());
-
-    return \ApiBaseResponder::response($users);
-}
-```
-
-#### Customization via Config
-The config itself:
-
-```php
-return [
-    'plural_data_key' => 'entities',
-
-    'singular_data_key' => 'entity',
-
-    'using_for_rest' => true,
-
-    'methods_for_singular_key' => ['show', 'update'],
-
-    'force_json_response_header' => true,
-];
-```
-
-Disabling `using_for_rest` keeps the returned format always `response.data.entities` (plural) regardless of the method from
-which the call is made.
-
-With `methods_for_singular_key`, you can add to the list of methods where the key will be returned in the singular.
-`force_json_response_header` essentially adds the header to requests in the classic way: `$request->headers->set('Accept', 'application/json');`
-#### Customization via Attributes
-Blocking `using_for_rest` and `methods_for_singular_key` values in the config to set the response key according to
-`singular_data_key`:
-
-```php
-#[ResponseDataKey]
-public function attributeWithoutParam(): JsonResponse
-{
-    // response.data.entity
-    return BaseResponse::response($this->user);
-}
-```
-
-Similarly, you can pass your own key name:
-
-```php
-#[ResponseDataKey('random_key')]
-public function attributeWithParam(): JsonResponse
-{
-    // response.data.random_key
-    return BaseResponse::response($this->user);
-}
-```
-
-### In Conclusion
-The main need is covered: I wanted to be able to simply install the library and have a concise basis for standardizing
-the response format out of the box. Without unnecessary movements.
-
-And of course, there are still plenty of opportunities for customization and additional sugar, so further development of
-the library lies ahead) but the main idea will definitely be preserved.
+See the [README](https://github.com/pepperfm/api-responder-for-laravel/blob/3.x/README.md) for the full API.

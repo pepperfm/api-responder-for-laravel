@@ -91,13 +91,12 @@ test('stored returns HTTP 201', function () {
         ->and($data)->toHaveKey('user');
 });
 
-test('deleted returns HTTP 204', function () {
+test('deleted returns HTTP 204 without a body', function () {
     $builder = ResponseBuilder::make();
-    $response = $builder->deleted();
-    $data = $response->getData(true);
+    $response = $builder->deleted(['id' => 1]);
 
     expect($response->getStatusCode())->toBe(JsonResponse::HTTP_NO_CONTENT)
-        ->and($data['message'])->toBe('Deleted');
+        ->and($response->getContent())->toBe('');
 });
 
 test('custom data keys via config', function () {
@@ -267,4 +266,31 @@ test('builder via ApiBaseResponder withDataKey() shortcut', function () {
     $data = $response->getData(true);
 
     expect($data)->toHaveKeys(['products', 'meta', 'message']);
+});
+
+
+test('arrayable payloads are supported by the builder', function () {
+    $builder = ResponseBuilder::make()->withDataKey('items');
+
+    expect($builder->response(collect([['id' => 1]]))->getData(true)['items'])
+        ->toBe([['id' => 1]])
+        ->and($builder->raw(collect(['id' => 5]))->getData(true))->toBe(['id' => 5]);
+});
+
+test('withoutWrapping rejects conflicting meta and message keys', function () {
+    expect(fn() => ResponseBuilder::make()->withoutWrapping()->response(['meta' => 'user-data']))
+        ->toThrow(\InvalidArgumentException::class, 'reserved key')
+        ->and(fn() => ResponseBuilder::make()->withoutWrapping()->response(['message' => 'user-data']))
+        ->toThrow(\InvalidArgumentException::class, 'reserved key');
+});
+
+test('withoutWrapping rejects lists instead of turning them into an object', function () {
+    expect(fn() => ResponseBuilder::make()->withoutWrapping()->response([['id' => 1]]))
+        ->toThrow(\InvalidArgumentException::class, 'associative');
+});
+
+test('fromAction via facade detects the actual controller method', function () {
+    $controller = app(\Pepperfm\ApiBaseResponder\Tests\Fixtures\AttributeController::class);
+
+    expect($controller->facadeKey()->getData(true))->toHaveKey('facade_items');
 });

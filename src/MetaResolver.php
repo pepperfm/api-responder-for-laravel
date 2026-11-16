@@ -4,22 +4,21 @@ declare(strict_types=1);
 
 namespace Pepperfm\ApiBaseResponder;
 
-use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Pagination\CursorPaginator;
-use Illuminate\Support\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 
 final readonly class MetaResolver
 {
     public function __construct(
-        private array|Collection|LengthAwarePaginator|CursorPaginator $data,
-        private array|Collection|LengthAwarePaginator|CursorPaginator $meta
+        private array|Arrayable|Paginator|LengthAwarePaginator|CursorPaginator $data,
+        private array|Arrayable|Paginator|LengthAwarePaginator|CursorPaginator $meta,
     ) {
     }
 
     /**
-     * Resolve data and meta from mixed input types.
-     *
-     * @return array{data: mixed, meta: array}
+     * @return array{data: array|Arrayable, meta: array}
      */
     public function __invoke(): array
     {
@@ -27,34 +26,25 @@ final readonly class MetaResolver
     }
 
     /**
-     * Static resolver — preferred entry point.
-     *
-     * @param array|Collection|CursorPaginator|LengthAwarePaginator $data
-     * @param array|Collection|CursorPaginator|LengthAwarePaginator $meta
-     *
-     * @return array{data: mixed, meta: array}
+     * @return array{data: array|Arrayable, meta: array}
      */
     public static function resolve(
-        array|Collection|LengthAwarePaginator|CursorPaginator $data,
-        array|Collection|LengthAwarePaginator|CursorPaginator $meta
+        array|Arrayable|Paginator|LengthAwarePaginator|CursorPaginator $data,
+        array|Arrayable|Paginator|LengthAwarePaginator|CursorPaginator $meta,
     ): array {
-        if (
-            ($data instanceof LengthAwarePaginator || $data instanceof CursorPaginator) &&
-            (is_array($meta) || $meta instanceof Collection)
-        ) {
+        if (self::isPaginator($data)) {
+            $metaArray = self::isPaginator($meta) ? [] : self::toArray($meta);
+
             return [
-                'data' => $data->getCollection(),
-                'meta' => array_merge(
-                    $meta instanceof Collection ? $meta->toArray() : $meta,
-                    ['pagination' => self::extractPagination($data)]
-                ),
+                'data' => $data->getCollection()->toArray(),
+                'meta' => [
+                    ...$metaArray,
+                    'pagination' => self::extractPagination($data),
+                ],
             ];
         }
 
-        if (
-            (is_array($data) || $data instanceof Collection) &&
-            ($meta instanceof LengthAwarePaginator || $meta instanceof CursorPaginator)
-        ) {
+        if (self::isPaginator($meta)) {
             return [
                 'data' => $data,
                 'meta' => ['pagination' => self::extractPagination($meta)],
@@ -63,18 +53,11 @@ final readonly class MetaResolver
 
         return [
             'data' => $data,
-            'meta' => $meta instanceof Collection ? $meta->toArray() : (is_array($meta) ? $meta : []),
+            'meta' => self::toArray($meta),
         ];
     }
 
-    /**
-     * Extract pagination metadata from a paginator instance.
-     *
-     * @param CursorPaginator|LengthAwarePaginator $paginator
-     *
-     * @return array
-     */
-    public static function extractPagination(LengthAwarePaginator|CursorPaginator $paginator): array
+    public static function extractPagination(Paginator|LengthAwarePaginator|CursorPaginator $paginator): array
     {
         if ($paginator instanceof CursorPaginator) {
             return [
@@ -87,16 +70,36 @@ final readonly class MetaResolver
             ];
         }
 
-        return [
+        $pagination = [
             'current_page' => $paginator->currentPage(),
             'per_page' => $paginator->perPage(),
-            'last_page' => $paginator->lastPage(),
             'from' => $paginator->firstItem(),
             'to' => $paginator->lastItem(),
-            'total' => $paginator->total(),
             'prev_page_url' => $paginator->previousPageUrl(),
             'next_page_url' => $paginator->nextPageUrl(),
-            'links' => $paginator->linkCollection(),
         ];
+
+        if ($paginator instanceof LengthAwarePaginator) {
+            return [
+                ...$pagination,
+                'last_page' => $paginator->lastPage(),
+                'total' => $paginator->total(),
+                'links' => $paginator->linkCollection()->toArray(),
+            ];
+        }
+
+        return $pagination;
+    }
+
+    private static function isPaginator(mixed $value): bool
+    {
+        return $value instanceof Paginator ||
+            $value instanceof LengthAwarePaginator ||
+            $value instanceof CursorPaginator;
+    }
+
+    private static function toArray(array|Arrayable $data): array
+    {
+        return $data instanceof Arrayable ? $data->toArray() : $data;
     }
 }

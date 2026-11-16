@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Pepperfm\ApiBaseResponder\Attributes\ResponseDataKey;
 use Pepperfm\ApiBaseResponder\Attributes\WithoutWrapping;
 use Pepperfm\ApiBaseResponder\Contracts\ResponseContract;
+use Pepperfm\ApiBaseResponder\Facades\BaseResponse;
 
 /*
  * Test fixture for #[ResponseDataKey] and #[WithoutWrapping] attribute tests.
@@ -34,6 +35,12 @@ class AttributeController
     public function noWrap(): JsonResponse
     {
         return $this->json->fromAction()->response(['id' => 1, 'name' => 'John']);
+    }
+
+    #[ResponseDataKey('facade_items')]
+    public function facadeKey(): JsonResponse
+    {
+        return BaseResponse::fromAction()->response(['id' => 10]);
     }
 
     public function show(): JsonResponse

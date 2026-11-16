@@ -90,3 +90,32 @@ test('extractPagination with CursorPaginator returns correct keys', function () 
         ])
         ->and($result['per_page'])->toBe(2);
 });
+
+
+test('resolve converts direct paginator items to an array', function () {
+    $paginator = new \Illuminate\Pagination\LengthAwarePaginator(
+        items: [['id' => 1]],
+        total: 3,
+        perPage: 1,
+        currentPage: 1,
+    );
+
+    $result = MetaResolver::resolve($paginator, ['source' => 'test']);
+
+    expect($result['data'])->toBe([['id' => 1]])
+        ->and($result['meta']['source'])->toBe('test')
+        ->and($result['meta']['pagination']['total'])->toBe(3);
+});
+
+test('simple pagination has no total or last_page', function () {
+    $paginator = new \Illuminate\Pagination\Paginator(
+        items: [['id' => 1], ['id' => 2]],
+        perPage: 1,
+        currentPage: 1,
+    );
+
+    $result = MetaResolver::extractPagination($paginator);
+
+    expect($result)->toHaveKeys(['current_page', 'per_page', 'from', 'to', 'next_page_url'])
+        ->not->toHaveKeys(['last_page', 'total', 'links']);
+});

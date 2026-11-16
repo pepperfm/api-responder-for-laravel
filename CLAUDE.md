@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Laravel Composer package (`pepperfm/api-responder-for-laravel`) that provides standardized API JSON responses via DI/Facade. Active branch: `3.x`.
+Laravel Composer package (`pepperfm/api-responder-for-laravel`) that provides standardized API JSON responses via DI/Facade. Base branch: `3.x`. Requires PHP 8.5 and Laravel 13 (no CI workflow).
 
 ## Commands
 
@@ -41,7 +41,7 @@ This is a **library package**, not a Laravel application. All classes live under
 
 ### Core flow (v3)
 
-**Direct API** — `ApiBaseResponder::response()`, `stored()`, `deleted()` use config-based key resolution via private `buildJsonResponse()`. No `debug_backtrace()`.
+**Direct API** — `ApiBaseResponder::response()`, `stored()`, `deleted()` delegate to a new `ResponseBuilder`, which handles all success envelopes. No `debug_backtrace()` in direct methods.
 
 **Builder API** — `ApiBaseResponder` provides bridge methods that return `ResponseBuilder`:
 - `build()` — create a blank fluent builder
@@ -55,7 +55,7 @@ This is a **library package**, not a Laravel application. All classes live under
 3. REST convention (`forMethod()`) — `show`/`update` → singular, others → plural
 4. Config fallback — `laravel-api-responder.plural_data_key`
 
-`paginated()` delegates to `MetaResolver::resolve()` which extracts data and pagination meta from `LengthAwarePaginator`/`CursorPaginator`, then calls `response()`.
+`paginated()` delegates to `MetaResolver::resolve()` supporting `LengthAwarePaginator`, `Paginator` (simple) and `CursorPaginator`; it returns array data and pagination meta. Arrayable/Collection payloads are supported.
 
 ### Key contracts
 
@@ -65,7 +65,7 @@ This is a **library package**, not a Laravel application. All classes live under
 
 ### Testing
 
-Tests use **Orchestra Testbench** (not a real Laravel app). The `TestCase` base class registers `ApiBaseResponderServiceProvider`. Test routes are defined in `tests/Fixtures/api.php` and auto-loaded when `runningUnitTests()`. `ExampleController` and `AttributeController` in `tests/Fixtures/` serve as test fixture controllers.
+Tests use **Orchestra Testbench** (not a real Laravel app). The `TestCase` base class registers `ApiBaseResponderServiceProvider`. Test routes are registered only in `tests/TestCase.php` via `defineRoutes()`, not from the package provider. `ExampleController` and `AttributeController` in `tests/Fixtures/` serve as test fixture controllers.
 
 Config key is `laravel-api-responder` (set via `mergeConfigFrom` in ServiceProvider).
 
@@ -74,3 +74,5 @@ Config key is `laravel-api-responder` (set via `mergeConfigFrom` in ServiceProvi
 - `.ai-factory/DESCRIPTION.md` — project specification
 - `.ai-factory/ARCHITECTURE.md` — architecture decisions and layer rules
 - `AGENTS.md` — project structure map
+
+`deleted()` returns an empty body for 204; `withoutWrapping()` rejects reserved `meta` and `message` keys and root lists. Incoming `Accept` is never overwritten. Use `raw()` for payloads without envelope fields.

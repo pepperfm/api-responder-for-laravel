@@ -1,6 +1,6 @@
 {
     "name": "pepperfm/api-responder-for-laravel",
-    "description": "Easy api responder template using via DI",
+    "description": "Small, predictable JSON API responses for Laravel",
     "keywords": [
         "pepperfm",
         "laravel",
@@ -10,7 +10,7 @@
         "response",
         "api-responder"
     ],
-    "homepage": "https://github.com/pepperfm/api-responder-for-lravel",
+    "homepage": "https://github.com/pepperfm/api-responder-for-laravel",
     "license": "MIT",
     "type": "library",
     "authors": [
@@ -21,21 +21,21 @@
         }
     ],
     "require": {
-        "php": "^8.2"
+        "php": "^8.5",
+        "illuminate/contracts": "^13.0",
+        "illuminate/http": "^13.0",
+        "illuminate/pagination": "^13.0",
+        "illuminate/support": "^13.0"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.59",
         "laravel/pint": "^1.16",
-        "orchestra/testbench": "^9.11",
-        "pestphp/pest": "^3.0",
-        "pestphp/pest-plugin-laravel": "^3.0",
-        "phpunit/phpunit": "^11.0",
-        "spatie/laravel-ray": "^1.37"
+        "orchestra/testbench": "^11.3",
+        "pestphp/pest": "^5.0",
+        "pestphp/pest-plugin-laravel": "^5.0",
+        "phpunit/phpunit": "^13.4"
     },
     "autoload": {
-        "files": [
-            "src/helpers.php"
-        ],
         "psr-4": {
             "Pepperfm\\ApiBaseResponder\\": "src"
         }
@@ -45,12 +45,9 @@
             "Pepperfm\\ApiBaseResponder\\Tests\\": "tests"
         }
     },
-    "conflict": {
-        "laravel/framework": "<10.20.0"
-    },
     "scripts": {
         "test": "vendor/bin/pest",
-        "test-coverage": "vendor/bin/phpunit --coverage-html coverage",
+        "test-coverage": "vendor/bin/pest --coverage --coverage-html=coverage",
         "lint": [
             "@php vendor/bin/pint -v --test",
             "@php vendor/bin/php-cs-fixer check"
@@ -73,12 +70,7 @@
             ],
             "aliases": {
                 "ApiBaseResponder": "Pepperfm\\ApiBaseResponder\\Facades\\BaseResponse"
-            },
-            "dont-discover": [
-                "illuminate/database",
-                "illuminate/http",
-                "illuminate/support"
-            ]
+            }
         }
     }
 }

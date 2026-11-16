@@ -7,7 +7,7 @@ This architecture was chosen because the package is small, focused on a single r
 
 ## Decision Rationale
 - **Project type:** Composer library package (not a standalone application)
-- **Tech stack:** PHP 8.2+, Laravel >= 10.20
+- **Tech stack:** PHP 8.5, Laravel 13
 - **Key factor:** Single-responsibility library with a small API surface — simplicity and clarity are paramount
 
 ## Folder Structure
@@ -21,14 +21,8 @@ src/
 ├── ApiBaseResponder.php           # Layer 3: Core Logic — implements ResponseContract, bridges to ResponseBuilder
 ├── ResponseBuilder.php            # Layer 3: Core Logic — fluent builder for explicit response construction
 ├── MetaResolver.php               # Layer 3: Core Logic — pagination meta extraction
-├── helpers.php                    # Layer 3: Core Logic — paginate() global helper
 ├── Facades/                       # Layer 4: Framework Adapter — Laravel Facade
 │   └── BaseResponse.php
-├── Http/
-│   └── Middleware/                 # Layer 4: Framework Adapter — HTTP Middleware
-│       └── ForceJsonResponse.php
-├── Console/                       # Layer 4: Framework Adapter — Artisan commands
-│   └── InitCommand.php
 └── Providers/                     # Layer 4: Framework Adapter — Service Provider
     └── ApiBaseResponderServiceProvider.php
 
@@ -138,7 +132,6 @@ test('response with explicit data key', function () {
 ```
 
 ## Anti-Patterns
-- Never import `ApiBaseResponderServiceProvider`, `BaseResponse` Facade, or `ForceJsonResponse` middleware inside Core Logic classes — framework adapters are outer layer
 - Never add database dependencies or Eloquent models — this package is a response formatter, not a data layer
 - Never hardcode data keys — always read from config or attributes
 - Never use `debug_backtrace()` in core response methods — it's only acceptable in the opt-in `fromAction()`

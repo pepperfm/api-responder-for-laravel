@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased — Laravel 13 / PHP 8.5 (breaking)
+
+- Require PHP 8.5 and Laravel 13 Illuminate components; update local test tooling to Testbench 11, Pest 5 and PHPUnit 13.
+- Fix paginated responses for direct length-aware and cursor paginators, add simple pagination and Arrayable/Collection support.
+- Return an empty response body for HTTP 204 deletions; preserve the deleted() signature for existing callers.
+- Prevent silent overwriting of "meta" / "message" in unwrapped responses; reject root lists and recommend raw() instead.
+- Route all success responses through one ResponseBuilder implementation and fix facade-based attribute caller detection.
+- Remove the unsafe, unregistered init command and its outdated stub; remove the global paginate() helper.
+- Remove automatic Accept-header modification and the force_json_response_header config option.
+- Stop loading test fixture routes from the package ServiceProvider.
+- Fix the package homepage URL and refresh usage documentation. No GitHub Actions workflow is added.
+
+**Migration:** Consumers must upgrade to PHP 8.5 and Laravel 13. Delete any use of the global paginate() helper or api-responder:init. If clients depended on a JSON body with HTTP 204, use response() with status 200 explicitly. Switch to raw() for unwrapped root lists or data using reserved keys. Remove force_json_response_header from published configs.
+
 All notable changes to `laravel-api-responder` will be documented in this file
 
 ## 3.0.2 - 2026-05-20

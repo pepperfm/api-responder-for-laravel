@@ -6,9 +6,9 @@
 Laravel package providing standardized API JSON responses via DI/Facade with fluent ResponseBuilder, raw response support, PHP 8 attribute support, automatic REST-based data-key resolution, and pagination support.
 
 ## Tech Stack
-- **Language:** PHP 8.2+
-- **Framework:** Laravel >= 10.20 (library)
-- **Testing:** Pest 3 + PHPUnit 11
+- **Language:** PHP 8.5 only
+- **Framework:** Laravel 13 only (library)
+- **Testing:** Pest 5 + PHPUnit 13 + Testbench 11, local only
 - **Linting:** PHP CS Fixer + Laravel Pint
 
 ## Project Structure
@@ -24,17 +24,11 @@ Laravel package providing standardized API JSON responses via DI/Facade with flu
 │   ├── Attributes/
 │   │   ├── ResponseDataKey.php     # #[ResponseDataKey('key')] — custom data key per method
 │   │   └── WithoutWrapping.php     # #[WithoutWrapping] — disable data-key wrapping
-│   ├── Console/
-│   │   └── InitCommand.php         # Artisan init command for package setup
 │   ├── Facades/
 │   │   └── BaseResponse.php        # Facade for static access (builder + direct methods)
-│   ├── Http/
-│   │   └── Middleware/
-│   │       └── ForceJsonResponse.php  # Forces Accept: application/json header
 │   ├── Providers/
 │   │   └── ApiBaseResponderServiceProvider.php  # Auto-discovered service provider
 │   ├── MetaResolver.php            # Resolves pagination meta — static resolve() + extractPagination()
-│   └── helpers.php                 # paginate() helper (delegates to MetaResolver)
 ├── tests/
 │   ├── Fixtures/
 │   │   ├── api.php                 # Test route definitions
@@ -47,7 +41,6 @@ Laravel package providing standardized API JSON responses via DI/Facade with flu
 │   ├── Pest.php                    # Pest configuration
 │   └── TestCase.php                # Base test case (Orchestra Testbench)
 ├── composer.json                   # Package manifest
-├── .mcp.json                       # MCP server configuration (GitHub, Filesystem)
 └── .ai-factory/
     ├── config.yaml                 # AI Factory language, paths, workflow, git, and rules configuration
     ├── DESCRIPTION.md              # Project specification and tech stack
@@ -85,7 +78,10 @@ Laravel package providing standardized API JSON responses via DI/Facade with flu
 | .ai-factory/ARCHITECTURE.md | Architecture decisions and guidelines |
 | .ai-factory/config.yaml | AI Factory configuration for languages, paths, workflow, git, and rules |
 | .ai-factory/rules/base.md | Auto-detected project conventions used by AI Factory workflows |
-| .ai-factory/plans/refactor-v3-clean-architecture.md | Completed v3 refactoring plan and task history |
+
+No GitHub Actions workflow is used. All tests and lint checks run locally.
+
+The package does not mutate incoming Accept headers. `deleted()` returns a true empty HTTP 204. Use `raw()` for unwrapped root arrays or payloads with `meta` / `message` keys.
 
 ## Commands
 | Command | Description |

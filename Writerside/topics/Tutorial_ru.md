@@ -1,233 +1,110 @@
-# Стандартизация ответов API без трейтов
+# Стандартизация JSON-ответов Laravel без трейтов
 
-### Проблема
-Заметил я, что б**о**льшая часть библиотек, созданных для апи респонса, реализованы через трейты, остальная часть — огромные библиотеки.
-В этих трейтах реализованы методы под всё, что только можно (response, accepted, created, forbidden...)
+API Responder нужен для **форматирования HTTP-ответов**, а не для валидации, DTO или преобразования моделей. Его задача — дать контроллерам небольшой, предсказуемый интерфейс.
 
-Таким образом, если в моём контроллере 1-2 метода, то, подключая такой трейт, я имею в классе кучу ненужного мусора.
-В паре больших библиотек на 700+ звёзд я вижу overengineering на уровне UX (для себя, как для пользователя библиотеки)
+**Требования:** PHP 8.5 и Laravel 13. Версия 3.x поддерживала более старые окружения; текущая разработка ориентирована только на Laravel 13.
 
-### Что делать?
-Написать свою библиотеку!
-
-Я решил создать такую логику обработки данных, чтобы на пользовательском уровне требовалось:
-- минимум действий
-- имелась простота использования
-- читаемость
-
-То есть для получение стандартизированного респонса, всё, что нам нужно, это вернуть респонс через объект библиотеки
+## Установка
 
 ```bash
 composer require pepperfm/api-responder-for-laravel
 ```
 
-Итого, базовый минимум, который у нас есть сразу после установки библиотеки, это:
-
-Успешный ответ:
-```json
-{
-  response: {
-    data: {
-      entities,
-      meta: []|{},
-      message: 'Success'
-    }
-  }
-}
-```
-Ответ с ошибкой:
-```json
-{
-  response: {
-    data: {
-      errors: null,
-      message: 'Error'
-    }
-  }
-}
-```
+## Простой пример
 
 ```php
-public function __construct(public ResponseContract $json)
+use Pepperfm\ApiBaseResponder\Contracts\ResponseContract;
+
+final class UserController
 {
-}
+    public function __construct(private ResponseContract $json) {}
 
-public function index(Request $request)
-{
-    $users = User::query()->get();
-
-    return $this->json->response($users);
-}
-
-public function store(UserService $service)
-{
-    try {
-        app('db')->beginTransaction();
-        
-        $service->update(request()->input());
-        
-        app('db')->commit();
-    } catch (\Exception $e) {
-        app('db')->rollback();
-        logger()->debug($e->getMessage());
-
-        return $this->json->error(
-            message: $e->getMessage(),
-            httpStatusCode: $e->getCode()
+    public function index()
+    {
+        return $this->json->response(
+            User::query()->get(['id', 'name'])
         );
     }
 
-
-    return $this->json->response($users);
-}
-```
-
-На выходе при успешном ответе имеем распаковку формата в виде: `response.data.entities`
-По-умолчанию формат актуален в контексте REST, то есть для методов `show()` и `update()` ответ будет формата: `response.data.entity`
-___
-## Глубокое погружение
-Конечно, для любителей кастомизации и копания в конфигах я так же создал песочницу кода, с которым можно поиграться
-
-### Возможности
-#### Любимый нами сахар
-
-Обёртка над `response()` метдом для пагинации:
-```php
-/*
- * Generate response.data.meta.pagination from first argument of `pagiated()` method
- */
-public function index(Request $request)
-{
-    $users = User::query()->paginate();
-
-    return $this->json->paginated($users);
-}
-```
-Метод `paginated()` принимает два основных параметра:
-```php
-array|\Illuminate\Pagination\LengthAwarePaginator $data,
-array|\Illuminate\Pagination\LengthAwarePaginator $meta = [],
-```
-В своей логике резолвит их и добавляет в ответ по ключу `meta` — ключ `pagination`
-
-Интерфейсы ответа в соответствии с форматом, возвращаемым Laravel:
-```php
-export interface IPaginatedResponse<T> {
-    current_page: number
-    per_page: number
-    last_page: number
-    data: T[]
-    from: number
-    to: number
-    total: number
-    prev_page_url?: any
-    next_page_url: string
-    links: IPaginatedResponseLinks[]
-}
-export interface IPaginatedResponseLinks {
-    url?: any
-    label: string
-    active: boolean
-}
-```
-В итоге ответ получается формата:
-```php
-{
-  response: {
-    data: {
-      entities,
-      meta: {
-        pagination: ...
-      },
-      message: 'Success'
+    public function show(User $user)
+    {
+        return $this->json->withDataKey('user')->response([
+            'id' => $user->id,
+            'name' => $user->name,
+        ]);
     }
-  }
+
+    public function destroy(User $user)
+    {
+        $user->delete();
+
+        return $this->json->deleted();
+    }
 }
 ```
 
+Ответ `index()` — обычный JSON без дополнительного `response.data` внутри тела:
 
-Обёртка над `response()` метдом для кодов ответа:
-```php
-public function store(UserService $service)
+```json
 {
-    ...
-    // message: 'Stored', httpStatusCode: JsonResponse::HTTP_CREATED
-    return $this->json->stored();
-}
-
-public function destroy()
-{
-    ...
-    // message: 'Deleted', httpStatusCode: JsonResponse::HTTP_NO_CONTENT
-    return $this->json->deleted();
+  "entities": [{"id": 1, "name": "Anna"}],
+  "meta": [],
+  "message": "Success"
 }
 ```
 
-#### Работа с разными типами параметра
-Первый аргумент метода `response()` может быть типов `array|Arrayable`, поэтому можно маппить данные перед передачей в метод в рамках этих типов. К примеру:
+`deleted()` возвращает статус **204 No Content** с пустым телом. Если требуется вернуть JSON-сообщение об удалении, используйте ответ 200.
+
+## Пагинация
+
 ```php
-public function index()
-{
-    $users = User::query()->paginate();
-    $dtoCollection = $users->getCollection()->mapInto(UserDto::class);
+return $this->json->paginated(User::query()->paginate());
+return $this->json->paginated(User::query()->simplePaginate());
+return $this->json->paginated(User::query()->cursorPaginate());
 
-    return resolve(ResponseContract::class)->paginated(
-        data: $dtoCollection,
-        meta: $users
-    );
+// Отдельно отформатировать записи и сохранить метаданные:
+$paginator = User::query()->paginate();
+$data = $paginator->getCollection()->map(
+    fn ($user) => ['id' => $user->id, 'name' => $user->name],
+);
+
+return $this->json->paginated($data, $paginator);
+```
+
+Информация о пагинации помещается в `meta.pagination`. Набор ключей зависит от типа paginator: обычный, простой и cursor используют разные метаданные.
+
+## Дополнительные способы вызова
+
+```php
+return $this->json->stored(['id' => 42]); // 201
+return $this->json->error('Not found', 404);
+return $this->json->raw(['message' => 'Custom']); // Точное тело JSON
+return $this->json->forMethod('show')->response(['id' => 1]);
+```
+
+`response()` и `raw()` принимают массивы и объекты Laravel `Arrayable`, включая `Collection`. Для явного контроля отображаемых полей используйте API Resource или DTO.
+
+## Атрибуты и обёртка
+
+```php
+use Pepperfm\ApiBaseResponder\Attributes\ResponseDataKey;
+use Pepperfm\ApiBaseResponder\Attributes\WithoutWrapping;
+
+#[ResponseDataKey('user')]
+public function show(User $user)
+{
+    return $this->json->fromAction()->response(['id' => $user->id]);
 }
-```
-```php
-public function index()
+
+#[WithoutWrapping]
+public function stats()
 {
-    $users = SpatieUserData::collect(User::query()->get());
-
-    return \ApiBaseResponder::response($users);
-}
-```
-
-#### Кастомизация через конфиг
-Сам конфиг:
-```php
-return [
-    'plural_data_key' => 'entities',
-
-    'singular_data_key' => 'entity',
-
-    'using_for_rest' => true,
-
-    'methods_for_singular_key' => ['show', 'update'],
-
-    'force_json_response_header' => true,
-];
-```
-- отключение `using_for_rest` оставляет возвращаемый формат всегда `response.data.entities` (мн. ч.) не зависимо от метода, из которого происходит вызов
-- с помощью `methods_for_singular_key` можно пополнить список методов, в которых будет возвращаться ключ в ед. ч.
-- `methods_for_singular_key`, собственно, добавляет заголовок в запросы по классике: `$request->headers->set('Accept', 'application/json');`
-
-#### Кастомизация через атрибуты
-Блокировка значений `using_for_rest` и `methods_for_singular_key` в конфиге для установки ключа ответа в соответствии с `singular_data_key`
-```php
-#[ResponseDataKey]
-public function attributeWithoutParam(): JsonResponse
-{
-    // response.data.entity
-    return BaseResponse::response($this->user);
-}
-```
-По аналогии можно передать своё назавние ключа
-```php
-#[ResponseDataKey('random_key')]
-public function attributeWithParam(): JsonResponse
-{
-    // response.data.random_key
-    return BaseResponse::response($this->user);
+    return $this->json->fromAction()->response(['active' => 10]);
 }
 ```
 
-### В итоге
-Осноанвя потребность закрыта: я хотел иметь возможность просто поставить библиотеку, и просто иметь из коробки лаконичный базис для стандартизации формата ответа. Без лишних движений.
+Без обёртки `meta` и `message` остаются зарезервированными ключами. При конфликте выбрасывается исключение — данные не перезаписываются молча. Для произвольного JSON и списков в корне используйте `raw()`.
 
-И, конечно, как возможностей для лишних движений (кастомизация), так и ненасыпанного сахара — ещё очень много, так что в доработке библиотеки всё впереди) но основной посыл я точно сохраню! Ибо, как гласят великие мемы истории:
+Пакет **не изменяет входящий `Accept`** и не добавляет middleware автоматически. Тесты выполняются локально командами `composer test` и `composer lint`.
 
-> Красота в простате
+Полное описание: [README](https://github.com/pepperfm/api-responder-for-laravel/blob/3.x/README.md).
