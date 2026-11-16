@@ -91,13 +91,11 @@ test('stored returns HTTP 201', function () {
         ->and($data)->toHaveKey('user');
 });
 
-test('deleted returns HTTP 204', function () {
-    $builder = ResponseBuilder::make();
-    $response = $builder->deleted();
-    $data = $response->getData(true);
+test('deleted returns HTTP 204 with no JSON body', function () {
+    $response = ResponseBuilder::make()->deleted();
 
     expect($response->getStatusCode())->toBe(JsonResponse::HTTP_NO_CONTENT)
-        ->and($data['message'])->toBe('Deleted');
+        ->and($response->getContent())->toBe('');
 });
 
 test('custom data keys via config', function () {
@@ -267,4 +265,47 @@ test('builder via ApiBaseResponder withDataKey() shortcut', function () {
     $data = $response->getData(true);
 
     expect($data)->toHaveKeys(['products', 'meta', 'message']);
+});
+
+test('builder accepts Arrayable payloads', function () {
+    $response = ResponseBuilder::make()->withDataKey('users')
+        ->response(collect([['id' => 1]]));
+
+    expect($response->getData(true)['users'])->toBe([['id' => 1]]);
+});
+
+test('builder rejects reserved envelope data keys', function () {
+    expect(fn() => ResponseBuilder::make()->withDataKey('message'))
+        ->toThrow(\InvalidArgumentException::class)
+        ->and(fn() => ResponseBuilder::make()->withDataKey('meta'))
+        ->toThrow(\InvalidArgumentException::class);
+});
+
+test('unwrapped responses reject conflicting keys rather than discarding data', function () {
+    expect(fn() => ResponseBuilder::make()->withoutWrapping()->response(['meta' => 'payload']))
+        ->toThrow(\InvalidArgumentException::class)
+        ->and(fn() => ResponseBuilder::make()->withoutWrapping()->response(['message' => 'payload']))
+        ->toThrow(\InvalidArgumentException::class);
+});
+
+test('unwrapped root lists must use raw()', function () {
+    expect(fn() => ResponseBuilder::make()->withoutWrapping()->response([['id' => 1]]))
+        ->toThrow(\InvalidArgumentException::class);
+
+    expect(ResponseBuilder::make()->raw([['id' => 1]])->getData(true))
+        ->toBe([['id' => 1]]);
+});
+
+test('fromAction via facade uses the original controller method', function () {
+    $controller = app(\Pepperfm\ApiBaseResponder\Tests\Fixtures\AttributeController::class);
+
+    expect($controller->facadeKey()->getData(true))->toHaveKey('facade_users');
+});
+
+test('the config controls singular REST action names', function () {
+    config()->set('laravel-api-responder.methods_for_singular_key', ['detail']);
+    config()->set('laravel-api-responder.singular_data_key', 'result');
+
+    expect(ResponseBuilder::make()->forMethod('detail')->response(['id' => 1])->getData(true))
+        ->toHaveKey('result');
 });

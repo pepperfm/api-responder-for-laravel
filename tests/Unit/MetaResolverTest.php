@@ -2,91 +2,60 @@
 
 declare(strict_types=1);
 
+use Illuminate\Pagination\CursorPaginator;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 use Pepperfm\ApiBaseResponder\MetaResolver;
 
-test('resolve with plain arrays', function () {
-    $result = MetaResolver::resolve(['item1', 'item2'], ['key' => 'value']);
-
-    expect($result)
-        ->toHaveKeys(['data', 'meta'])
-        ->and($result['data'])->toBe(['item1', 'item2'])
-        ->and($result['meta'])->toBe(['key' => 'value']);
+test('plain arrays remain unchanged', function () {
+    expect(MetaResolver::resolve(['x'], ['source' => 'test']))->toBe([
+        'data' => ['x'],
+        'meta' => ['source' => 'test'],
+    ]);
 });
 
-test('resolve with collections', function () {
-    $data = collect(['item1', 'item2']);
-    $meta = collect(['key' => 'value']);
+test('collections are accepted as data and meta', function () {
+    $items = collect(['x', 'y']);
 
-    $result = MetaResolver::resolve($data, $meta);
+    $result = MetaResolver::resolve($items, collect(['foo' => 'bar']));
 
-    expect($result)
-        ->toHaveKeys(['data', 'meta'])
-        ->and($result['data'])->toEqual($data)
-        ->and($result['meta'])->toBe(['key' => 'value']);
+    expect($result['data'])->toBe($items)
+        ->and($result['meta'])->toBe(['foo' => 'bar']);
 });
 
-test('resolve with empty arrays', function () {
-    $result = MetaResolver::resolve([], []);
+test('paginator data are converted to serializable arrays', function () {
+    $paginator = new LengthAwarePaginator([['id' => 1]], 4, 1, 1);
 
-    expect($result['data'])->toBe([])
-        ->and($result['meta'])->toBe([]);
+    $result = MetaResolver::resolve($paginator, ['source' => 'unit']);
+
+    expect($result['data'])->toBe([['id' => 1]])
+        ->and($result['meta']['source'])->toBe('unit')
+        ->and($result['meta']['pagination']['total'])->toBe(4);
 });
 
-test('invokable returns same as static resolve', function () {
-    $data = ['item1', 'item2'];
-    $meta = ['key' => 'value'];
+test('native paginator metadata is reused without custom field mapping', function () {
+    $paginator = new LengthAwarePaginator([['id' => 1]], 4, 1, 1);
+    $native = $paginator->toArray();
+    unset($native['data']);
 
-    $resolver = new MetaResolver($data, $meta);
-    $invokeResult = $resolver();
-    $staticResult = MetaResolver::resolve($data, $meta);
-
-    expect($invokeResult)->toBe($staticResult);
+    expect(MetaResolver::extractPagination($paginator))->toBe($native);
 });
 
-test('extractPagination with LengthAwarePaginator returns correct keys', function () {
-    $paginator = new \Illuminate\Pagination\LengthAwarePaginator(
-        items: [['id' => 1], ['id' => 2]],
-        total: 10,
-        perPage: 2,
-        currentPage: 1
+test('simple pagination excludes total and last_page', function () {
+    $paginator = new Paginator([['id' => 1], ['id' => 2]], 1, 1);
+
+    expect(MetaResolver::extractPagination($paginator))
+        ->toHaveKeys(['per_page', 'next_page_url'])
+        ->not->toHaveKeys(['total', 'last_page']);
+});
+
+test('cursor pagination retains cursor information', function () {
+    $paginator = new CursorPaginator(
+        [['id' => 1], ['id' => 2], ['id' => 3]],
+        2,
+        options: ['parameters' => ['id']],
     );
 
-    $result = MetaResolver::extractPagination($paginator);
-
-    expect($result)
-        ->toHaveKeys([
-            'current_page',
-            'per_page',
-            'last_page',
-            'from',
-            'to',
-            'total',
-            'prev_page_url',
-            'next_page_url',
-            'links',
-        ])
-        ->and($result['current_page'])->toBe(1)
-        ->and($result['per_page'])->toBe(2)
-        ->and($result['total'])->toBe(10)
-        ->and($result['last_page'])->toBe(5);
-});
-
-test('extractPagination with CursorPaginator returns correct keys', function () {
-    $paginator = new \Illuminate\Pagination\CursorPaginator(
-        items: [['id' => 1], ['id' => 2]],
-        perPage: 2,
-    );
-
-    $result = MetaResolver::extractPagination($paginator);
-
-    expect($result)
-        ->toHaveKeys([
-            'path',
-            'per_page',
-            'next_cursor',
-            'next_page_url',
-            'prev_cursor',
-            'prev_page_url',
-        ])
-        ->and($result['per_page'])->toBe(2);
+    expect(MetaResolver::extractPagination($paginator))
+        ->toHaveKeys(['next_cursor', 'prev_cursor']);
 });
