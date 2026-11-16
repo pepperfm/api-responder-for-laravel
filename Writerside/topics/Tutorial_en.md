@@ -1,108 +1,44 @@
-# Standardizing Laravel JSON Responses Without Traits
+# API Responder 4.x — Laravel 13 / PHP 8.5
 
-API Responder formats **outgoing HTTP responses**. It is intentionally not a DTO, transformation, or validation library.
-
-**Requirements:** PHP 8.5 and Laravel 13.
-
-## Installation
-
-```bash
-composer require pepperfm/api-responder-for-laravel
-```
-
-## Example
+A tiny outgoing JSON formatter: one class, four methods, no trait, service provider, facade, config, DTO or attributes.
 
 ```php
-use Pepperfm\ApiBaseResponder\Contracts\ResponseContract;
+use Pepperfm\ApiResponder\JsonResponder;
 
 final class UserController
 {
-    public function __construct(private ResponseContract $json) {}
-
-    public function index()
-    {
-        return $this->json->response(User::query()->get(['id', 'name']));
-    }
+    public function __construct(private JsonResponder $json) {}
 
     public function show(User $user)
     {
-        return $this->json->withDataKey('user')->response([
-            'id' => $user->id,
-            'name' => $user->name,
-        ]);
+        return $this->json->response(['id' => $user->id]);
+    }
+
+    public function index()
+    {
+        return $this->json->paginated(User::query()->paginate());
+    }
+
+    public function store(StoreUserRequest $request)
+    {
+        return $this->json->created(
+            User::create($request->validated())->only(['id', 'name']),
+        );
     }
 
     public function destroy(User $user)
     {
         $user->delete();
 
-        return $this->json->deleted();
+        return response()->noContent(); // native Laravel
     }
 }
 ```
 
-The `index()` response has no extra `response.data` wrapper:
+Success JSON has one predictable shape: `{"data": ..., "meta": [], "message": "Success"}`. For errors call `$json->error('Not found', 404)`.
 
-```json
-{
-  "entities": [{"id": 1, "name": "Anna"}],
-  "meta": [],
-  "message": "Success"
-}
-```
+The same `paginated()` method supports `paginate()`, `simplePaginate()` and `cursorPaginate()`. Map records beforehand with `$paginator->through(fn ($model) => ...)`.
 
-`deleted()` returns **204 No Content** with an empty body. Use an explicit 200 response when the client expects a JSON message.
+Use Laravel `response()->json()` for raw payloads. Version 4 removes the former builders, attribute discovery, dynamic data keys, facade, interface, helper functions and `stored()` / `deleted()` methods.
 
-## Pagination
-
-```php
-return $this->json->paginated(User::query()->paginate());
-return $this->json->paginated(User::query()->simplePaginate());
-return $this->json->paginated(User::query()->cursorPaginate());
-
-// Map data while retaining the original pagination metadata:
-$paginator = User::query()->paginate();
-$data = $paginator->getCollection()->map(
-    fn ($user) => ['id' => $user->id, 'name' => $user->name],
-);
-
-return $this->json->paginated($data, $paginator);
-```
-
-Pagination details live under `meta.pagination`. Available fields depend on the paginator type.
-
-## Other response methods
-
-```php
-return $this->json->stored(['id' => 42]); // 201
-return $this->json->error('Not found', 404);
-return $this->json->raw(['message' => 'Custom']); // exact JSON payload
-return $this->json->forMethod('show')->response(['id' => 1]);
-```
-
-Payloads may be arrays or Laravel `Arrayable` objects, including `Collection`. Prefer API Resources or explicit DTOs for field visibility.
-
-## Attributes and wrapping
-
-```php
-use Pepperfm\ApiBaseResponder\Attributes\ResponseDataKey;
-use Pepperfm\ApiBaseResponder\Attributes\WithoutWrapping;
-
-#[ResponseDataKey('user')]
-public function show(User $user)
-{
-    return $this->json->fromAction()->response(['id' => $user->id]);
-}
-
-#[WithoutWrapping]
-public function stats()
-{
-    return $this->json->fromAction()->response(['active' => 10]);
-}
-```
-
-Unwrapped responses reserve the `meta` and `message` keys. Rather than silently overwriting those fields, the builder throws an exception. Use `raw()` for root lists or arbitrary JSON.
-
-The package does **not** mutate incoming `Accept` headers or automatically register middleware. Tests are local (`composer test`, `composer lint`).
-
-See the [README](https://github.com/pepperfm/api-responder-for-laravel/blob/3.x/README.md) for the full API.
+See the [README](https://github.com/pepperfm/api-responder-for-laravel#readme) for full usage and the migration guide.

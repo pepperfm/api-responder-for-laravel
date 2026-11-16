@@ -2,4 +2,4 @@
 
 declare(strict_types=1);
 
-uses(Pepperfm\ApiBaseResponder\Tests\TestCase::class)->in('Unit');
+uses(Pepperfm\ApiResponder\Tests\TestCase::class)->in('Unit');

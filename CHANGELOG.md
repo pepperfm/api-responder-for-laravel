@@ -1,89 +1,20 @@
 # Changelog
 
-## Unreleased — Laravel 13 / PHP 8.5 (breaking)
+## 4.0.0 — Unreleased (breaking)
 
-- Require PHP 8.5 and Laravel 13 Illuminate components; update local test tooling to Testbench 11, Pest 5 and PHPUnit 13.
-- Fix paginated responses for direct length-aware and cursor paginators, add simple pagination and Arrayable/Collection support.
-- Return an empty response body for HTTP 204 deletions; preserve the deleted() signature for existing callers.
-- Prevent silent overwriting of "meta" / "message" in unwrapped responses; reject root lists and recommend raw() instead.
-- Route all success responses through one ResponseBuilder implementation and fix facade-based attribute caller detection.
-- Remove the unsafe, unregistered init command and its outdated stub; remove the global paginate() helper.
-- Remove automatic Accept-header modification and the force_json_response_header config option.
-- Stop loading test fixture routes from the package ServiceProvider.
-- Fix the package homepage URL and refresh usage documentation. No GitHub Actions workflow is added.
+Simplify the package into a single responder for Laravel 13 and PHP 8.5.
 
-**Migration:** Consumers must upgrade to PHP 8.5 and Laravel 13. Delete any use of the global paginate() helper or api-responder:init. If clients depended on a JSON body with HTTP 204, use response() with status 200 explicitly. Switch to raw() for unwrapped root lists or data using reserved keys. Remove force_json_response_header from published configs.
+- Replace `ApiBaseResponder`, contract, service provider, facade, builder, config, attributes and helpers with `Pepperfm\ApiResponder\JsonResponder`.
+- Adopt one success envelope: `data`, `meta`, `message`. No automatic singular/plural keys.
+- Expose four methods: `response()`, `created()`, `paginated()` and `error()`.
+- Use Laravel's own `Paginator::toArray()` for length-aware, simple and cursor pagination; recommend `through()` for mapping.
+- Delegate empty and unwrapped responses to native Laravel helpers.
+- Remove redundant PHP-CS-Fixer configuration; use Laravel Pint for local code style.
+- Require PHP 8.5 and Illuminate 13; retain local Pest / Testbench tests only.
+- Refresh README, Writerside guides and agent documentation.
 
-All notable changes to `laravel-api-responder` will be documented in this file
+See README **Migration from 3.x to 4.x** before upgrading.
 
-## 3.0.2 - 2026-05-20
+## Previous releases
 
-### Added
-- `raw(array $data, int $httpStatusCode = 200)` — return the payload directly without `entities`, `meta`, or `message` envelope fields
-
-### Changed
-- Expanded `ResponseContract` to declare the full public responder API directly
-- Removed unused `guzzlehttp/guzzle` and `guzzlehttp/psr7` runtime dependencies
-
-## 3.0.0 - 2026-XX-XX
-
-### Breaking Changes
-- Removed `Arrayable` type hints from all method signatures — use `->toArray()` before passing data
-- Removed `FormatByWrappingOption` class — use `ResponseBuilder::withoutWrapping()` or config
-- Removed `ValidateRestMethod` class — use `ResponseBuilder::forMethod()` or `withDataKey()`
-- Removed `DataKeyStrategy` enum — data key resolution is now handled by `ResponseBuilder`
-- Direct methods (`response()`, `stored()`, `deleted()`) no longer use `debug_backtrace()` — they resolve data key from config only
-- Direct methods always use the plural data key from config (no implicit REST method detection)
-
-### Added
-- `ResponseBuilder` — fluent builder for explicit response construction
-- `build()` method on `ApiBaseResponder` — creates a blank `ResponseBuilder`
-- `forMethod(string $method)` — builder with REST method context (singular/plural key resolution)
-- `withDataKey(string $key)` — builder with explicit data key
-- `fromAction(?string $class, ?string $method)` — builder configured from PHP attributes (`#[ResponseDataKey]`, `#[WithoutWrapping]`), auto-detects caller when called without arguments
-- `withoutWrapping()` on `ResponseBuilder` — disable data-key wrapping per-response
-- `MetaResolver::resolve()` static method (replaces invokable pattern)
-- `MetaResolver::extractPagination()` static method
-
-### Removed
-- `FormatByWrappingOption` class
-- `ValidateRestMethod` class
-- `DataKeyStrategy` enum
-- All `debug_backtrace()` usage from core response methods
-- All logging (`Log::debug`, `Log::warning`, `logger()`)
-- `Arrayable` type support in method signatures
-
-### Migration Guide (v2 -> v3)
-
-**Before (v2):**
-```php
-// Implicit backtrace-based key detection
-return $this->json->response($data);
-```
-
-**After (v3) — Option A: Config-based (simplest):**
-```php
-// Uses plural_data_key from config
-return $this->json->response($data);
-```
-
-**After (v3) — Option B: Explicit builder:**
-```php
-// Explicit data key
-return $this->json->withDataKey('users')->response($data);
-
-// REST convention
-return $this->json->forMethod('show')->response($data);
-```
-
-**After (v3) — Option C: PHP attributes:**
-```php
-#[ResponseDataKey('users')]
-public function index(): JsonResponse {
-    return $this->json->fromAction()->response($data);
-}
-```
-
-## 1.0.0 - 201X-XX-XX
-
-- initial release
+3.x included configurable envelopes, fluent builders, attributes, facades and pagination utilities. Those customization surfaces were intentionally removed rather than maintained for backward compatibility.

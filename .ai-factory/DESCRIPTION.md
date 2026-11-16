@@ -1,39 +1,16 @@
-# Project: Api Responder for Laravel
+# API Responder for Laravel 4.x
 
-## Overview
-A Laravel package (library) that provides a standardized, configurable API JSON response layer via Dependency Injection, Facade, or Service Container resolution. It offers a fluent ResponseBuilder API for explicit data key control and supports PHP 8 attributes for declarative configuration, pagination (LengthAware + Simple + Cursor), and flexible wrapping control.
+A minimal Composer library for consistent outgoing HTTP JSON response envelopes.
 
-## Core Features
-- Standardized JSON responses for success, error, create (stored), and delete operations
-- Raw JSON responses for endpoints that should return the payload directly without an envelope
-- **Fluent ResponseBuilder API:** `$this->json->forMethod('index')->response($data)` or `$this->json->withDataKey('users')->response($data)` — explicit, testable, no backtrace magic
-- **PHP Attribute support (opt-in):** `#[ResponseDataKey('key')]` and `#[WithoutWrapping]` via `fromAction()` — uses minimal backtrace only when explicitly called
-- Automatic data-key resolution: `entities` (plural) vs `entity` (singular) based on REST method names (`show`, `update`)
-- Response wrapping control via `#[WithoutWrapping]` attribute, config, or `->withoutWrapping()` builder method
-- Pagination support: `LengthAwarePaginator` and `CursorPaginator` with structured meta via `MetaResolver::resolve()`
-- Facade (`BaseResponse` / `\ApiBaseResponder`) and DI (`ResponseContract`) access patterns
+Requirements: PHP 8.5 / Laravel 13.
 
-## Tech Stack
-- **Language:** PHP 8.5
-- **Framework:** Laravel 13 (as a library/package — not an application)
-- **Testing:** Pest 5 + PHPUnit 13
-- **Linting:** PHP CS Fixer + Laravel Pint
-- **Runtime dependencies:** PHP 8.5 and a Laravel 13 host application
-- **Dev Tools:** Orchestra Testbench 11
+Runtime source: `src/JsonResponder.php`; namespace `Pepperfm\ApiResponder`.
 
-## Architecture Notes
-- **Package type:** Composer library with Laravel auto-discovery (ServiceProvider + Facade alias)
-- **Contract-driven:** `ResponseContract` interface defines the public API; `ApiBaseResponder` is the concrete implementation bound in the service container
-- **Dual API:** Direct methods use config-based key resolution; Builder methods (`build()`, `forMethod()`, `withDataKey()`, `fromAction()`) return fluent `ResponseBuilder` for explicit control
-- **No implicit backtrace:** Core response methods never use `debug_backtrace()`. Only the opt-in `fromAction()` uses minimal backtrace (1 frame, no args) to auto-detect the calling method
-- **Branch strategy:** `3.x` is the active development branch; `master` is the stable release branch
+Public methods: `response`, `created`, `paginated`, `error`.
 
-## Architecture
-See `.ai-factory/ARCHITECTURE.md` for detailed architecture guidelines.
-Pattern: Layered Architecture (Library Package)
+Default success output is `{"data": ..., "meta": [], "message": "Success"}`.
+Pagination uses Laravel's paginator serialization, with metadata under `meta.pagination`.
 
-## Non-Functional Requirements
-- UTF-8 enforced in all JSON responses (`JSON_UNESCAPED_UNICODE`)
-- Configurable response headers (`Content-Type: application/json; charset=UTF-8`)
-- Minimal dependencies: no runtime Composer dependencies beyond PHP itself; the package is intended to run inside a compatible Laravel host application
-- Compatible with Laravel 13 (conflict rule prevents older versions)
+No DTOs, validation, service provider, contracts, facades, builder, custom configuration or automatic request mutation. Laravel handles `response()->json()` and `response()->noContent()`.
+
+Run Pest tests and Pint locally. No CI workflow is included.

@@ -1,110 +1,44 @@
-# Стандартизация JSON-ответов Laravel без трейтов
+# API Responder 4.x: Laravel 13 / PHP 8.5
 
-API Responder нужен для **форматирования HTTP-ответов**, а не для валидации, DTO или преобразования моделей. Его задача — дать контроллерам небольшой, предсказуемый интерфейс.
-
-**Требования:** PHP 8.5 и Laravel 13. Версия 3.x поддерживала более старые окружения; текущая разработка ориентирована только на Laravel 13.
-
-## Установка
-
-```bash
-composer require pepperfm/api-responder-for-laravel
-```
-
-## Простой пример
+Небольшой форматтер JSON-ответов. Один класс, четыре метода, никаких трейтов, ServiceProvider, фасадов, конфигурации или DTO.
 
 ```php
-use Pepperfm\ApiBaseResponder\Contracts\ResponseContract;
+use Pepperfm\ApiResponder\JsonResponder;
 
 final class UserController
 {
-    public function __construct(private ResponseContract $json) {}
-
-    public function index()
-    {
-        return $this->json->response(
-            User::query()->get(['id', 'name'])
-        );
-    }
+    public function __construct(private JsonResponder $json) {}
 
     public function show(User $user)
     {
-        return $this->json->withDataKey('user')->response([
-            'id' => $user->id,
-            'name' => $user->name,
-        ]);
+        return $this->json->response(['id' => $user->id]);
+    }
+
+    public function index()
+    {
+        return $this->json->paginated(User::query()->paginate());
+    }
+
+    public function store(StoreUserRequest $request)
+    {
+        return $this->json->created(
+            User::create($request->validated())->only(['id', 'name']),
+        );
     }
 
     public function destroy(User $user)
     {
         $user->delete();
 
-        return $this->json->deleted();
+        return response()->noContent(); // Laravel, не пакет
     }
 }
 ```
 
-Ответ `index()` — обычный JSON без дополнительного `response.data` внутри тела:
+Ответы имеют предсказуемую структуру: `{"data": ..., "meta": [], "message": "Success"}`. Для ошибок используйте `$json->error('Not found', 404)`.
 
-```json
-{
-  "entities": [{"id": 1, "name": "Anna"}],
-  "meta": [],
-  "message": "Success"
-}
-```
+Для `simplePaginate()` и `cursorPaginate()` действует тот же метод `paginated()`. Для преобразования элементов — `$paginator->through(fn ($model) => ...)`.
 
-`deleted()` возвращает статус **204 No Content** с пустым телом. Если требуется вернуть JSON-сообщение об удалении, используйте ответ 200.
+Для ответа без обёртки используйте родной `response()->json()`. В 4.x удалены старые `withDataKey()`, `forMethod()`, `fromAction()`, атрибуты, фасад, контракты, глобальные хелперы и методы `stored()` / `deleted()`.
 
-## Пагинация
-
-```php
-return $this->json->paginated(User::query()->paginate());
-return $this->json->paginated(User::query()->simplePaginate());
-return $this->json->paginated(User::query()->cursorPaginate());
-
-// Отдельно отформатировать записи и сохранить метаданные:
-$paginator = User::query()->paginate();
-$data = $paginator->getCollection()->map(
-    fn ($user) => ['id' => $user->id, 'name' => $user->name],
-);
-
-return $this->json->paginated($data, $paginator);
-```
-
-Информация о пагинации помещается в `meta.pagination`. Набор ключей зависит от типа paginator: обычный, простой и cursor используют разные метаданные.
-
-## Дополнительные способы вызова
-
-```php
-return $this->json->stored(['id' => 42]); // 201
-return $this->json->error('Not found', 404);
-return $this->json->raw(['message' => 'Custom']); // Точное тело JSON
-return $this->json->forMethod('show')->response(['id' => 1]);
-```
-
-`response()` и `raw()` принимают массивы и объекты Laravel `Arrayable`, включая `Collection`. Для явного контроля отображаемых полей используйте API Resource или DTO.
-
-## Атрибуты и обёртка
-
-```php
-use Pepperfm\ApiBaseResponder\Attributes\ResponseDataKey;
-use Pepperfm\ApiBaseResponder\Attributes\WithoutWrapping;
-
-#[ResponseDataKey('user')]
-public function show(User $user)
-{
-    return $this->json->fromAction()->response(['id' => $user->id]);
-}
-
-#[WithoutWrapping]
-public function stats()
-{
-    return $this->json->fromAction()->response(['active' => 10]);
-}
-```
-
-Без обёртки `meta` и `message` остаются зарезервированными ключами. При конфликте выбрасывается исключение — данные не перезаписываются молча. Для произвольного JSON и списков в корне используйте `raw()`.
-
-Пакет **не изменяет входящий `Accept`** и не добавляет middleware автоматически. Тесты выполняются локально командами `composer test` и `composer lint`.
-
-Полное описание: [README](https://github.com/pepperfm/api-responder-for-laravel/blob/3.x/README.md).
+Полная документация и миграция: [README](https://github.com/pepperfm/api-responder-for-laravel#readme).

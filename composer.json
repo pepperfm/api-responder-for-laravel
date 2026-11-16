@@ -1,6 +1,6 @@
 {
     "name": "pepperfm/api-responder-for-laravel",
-    "description": "Small, predictable JSON API responses for Laravel",
+    "description": "Minimal, predictable JSON API responses for Laravel 13",
     "keywords": [
         "pepperfm",
         "laravel",
@@ -22,55 +22,35 @@
     ],
     "require": {
         "php": "^8.5",
-        "illuminate/contracts": "^13.0",
         "illuminate/http": "^13.0",
-        "illuminate/pagination": "^13.0",
-        "illuminate/support": "^13.0"
+        "illuminate/pagination": "^13.0"
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^3.59",
         "laravel/pint": "^1.16",
-        "orchestra/testbench": "^11.3",
+        "orchestra/testbench": "^11.0",
         "pestphp/pest": "^5.0",
-        "pestphp/pest-plugin-laravel": "^5.0",
-        "phpunit/phpunit": "^13.4"
+        "pestphp/pest-plugin-laravel": "^5.0"
     },
     "autoload": {
         "psr-4": {
-            "Pepperfm\\ApiBaseResponder\\": "src"
+            "Pepperfm\\ApiResponder\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Pepperfm\\ApiBaseResponder\\Tests\\": "tests"
+            "Pepperfm\\ApiResponder\\Tests\\": "tests/"
         }
     },
     "scripts": {
         "test": "vendor/bin/pest",
-        "test-coverage": "vendor/bin/pest --coverage --coverage-html=coverage",
-        "lint": [
-            "@php vendor/bin/pint -v --test",
-            "@php vendor/bin/php-cs-fixer check"
-        ],
-        "lint-hard": [
-            "@php vendor/bin/pint -v",
-            "@php vendor/bin/php-cs-fixer fix --diff -v"
-        ]
+        "lint": "vendor/bin/pint --test",
+        "format": "vendor/bin/pint",
+        "test-coverage": "vendor/bin/pest --coverage"
     },
     "config": {
         "sort-packages": true,
         "allow-plugins": {
             "pestphp/pest-plugin": true
-        }
-    },
-    "extra": {
-        "laravel": {
-            "providers": [
-                "Pepperfm\\ApiBaseResponder\\Providers\\ApiBaseResponderServiceProvider"
-            ],
-            "aliases": {
-                "ApiBaseResponder": "Pepperfm\\ApiBaseResponder\\Facades\\BaseResponse"
-            }
         }
     }
 }
