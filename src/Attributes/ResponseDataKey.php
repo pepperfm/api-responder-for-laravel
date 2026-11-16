@@ -11,7 +11,7 @@ final readonly class ResponseDataKey
     {
     }
 
-    public function key(): ?string
+    public function key(): string
     {
         return $this->key;
     }

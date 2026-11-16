@@ -1,15 +1,8 @@
-# Api responder for Laravel
+# API Responder for Laravel
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/pepperfm/api-responder-for-laravel.svg?style=flat-square)](https://packagist.org/packages/pepperfm/api-responder-for-laravel)
-[![Total Downloads](https://img.shields.io/packagist/dt/pepperfm/api-responder-for-laravel.svg?style=flat-square)](https://packagist.org/packages/pepperfm/api-responder-for-laravel)
-![GitHub Actions](https://github.com/pepperfm/api-responder-for-laravel/actions/workflows/main.yml/badge.svg)
+A small **configurable JSON response formatter** for Laravel. Consistent API envelopes, REST-aware key names, PHP attributes, and paginator metadata — without replacing your DTO or resource layer.
 
-![logo](api_responder.jpg)
-
-## Standardized API JSON responses for Laravel
-
-> [!TIP]
-> <a href="https://pepperfm.github.io/api-responder-for-laravel" target="_blank">Full Package Description</a>: Helpful advice for doing things better or more easily.
+> **4.x requires PHP 8.5 and Laravel 13.** This release intentionally drops backward compatibility with older runtime versions, but preserves the useful responder features.
 
 ## Installation
 
@@ -17,232 +10,153 @@
 composer require pepperfm/api-responder-for-laravel
 ```
 
-## Usage
-
-### Inject via Laravel DI
-
-```php
-use Pepperfm\ApiBaseResponder\Contracts\ResponseContract;
-
-class UserController extends Controller
-{
-    public function __construct(public ResponseContract $json)
-    {
-    }
-}
-```
-
-### Direct API (config-based data key)
-
-The simplest approach — data key and wrapping are resolved from config:
-
-```php
-public function index(Request $request)
-{
-    $users = User::query()->whereIn('id', $request->input('ids'))->get();
-
-    return $this->json->response($users->toArray());
-}
-
-public function store(StoreUserRequest $request)
-{
-    $user = User::create($request->validated());
-
-    return $this->json->stored($user->toArray());
-}
-
-public function destroy(User $user)
-{
-    $user->delete();
-
-    return $this->json->deleted();
-}
-```
-
-### Raw responses
-
-Use `raw()` when you want the HTTP JSON body to be exactly your payload, without `entities`, `meta`, or `message` envelope fields:
-
-```php
-public function show(User $user)
-{
-    return $this->json->raw($user->toArray());
-}
-```
-
-With Axios, this makes `response.data` equal to the user payload directly.
-
-### Builder API (explicit control)
-
-Use the fluent builder when you need per-response control over data keys or wrapping:
-
-```php
-// Explicit data key
-public function index()
-{
-    $users = User::all();
-
-    return $this->json->withDataKey('users')->response($users->toArray());
-}
-
-// REST method convention (singular key for show/update, plural for index/etc.)
-public function show(User $user)
-{
-    return $this->json->forMethod('show')->response($user->toArray());
-}
-
-// Disable wrapping (data spread into response root)
-public function stats()
-{
-    return $this->json->build()->withoutWrapping()->response($stats);
-}
-```
-
-### PHP Attributes (declarative style)
-
-Use `#[ResponseDataKey]` and `#[WithoutWrapping]` attributes with `fromAction()`:
-
-```php
-use Pepperfm\ApiBaseResponder\Attributes\ResponseDataKey;
-use Pepperfm\ApiBaseResponder\Attributes\WithoutWrapping;
-
-#[ResponseDataKey('user')]
-public function show(User $user): JsonResponse
-{
-    return $this->json->fromAction()->response($user->toArray());
-}
-
-#[ResponseDataKey] // defaults to singular 'entity'
-public function edit(User $user): JsonResponse
-{
-    return $this->json->fromAction()->response($user->toArray());
-}
-
-#[WithoutWrapping]
-public function stats(): JsonResponse
-{
-    return $this->json->fromAction()->response($stats);
-}
-```
-
-### Pagination
-
-```php
-public function index(Request $request)
-{
-    $users = User::query()->paginate();
-
-    return $this->json->paginated($users);
-}
-
-// With data mapping
-public function index(Request $request)
-{
-    $users = User::query()->paginate();
-    $dtoCollection = $users->getCollection()->mapInto(UserDto::class);
-
-    return $this->json->paginated($dtoCollection->toArray(), $users);
-}
-```
-
-### Error responses
-
-```php
-return $this->json->error('Not found', 404);
-return $this->json->error('Validation failed', 422, $validator->errors());
-```
-
-### Facades
-
-```php
-use Pepperfm\ApiBaseResponder\Facades\BaseResponse;
-
-return BaseResponse::response($data);
-return BaseResponse::raw($data);
-return BaseResponse::forMethod('index')->response($data);
-return BaseResponse::fromAction()->response($data);
-```
-
-### Method injection / resolve
-
-```php
-public function index(Request $request, ResponseContract $json)
-{
-    return $json->response($users->toArray());
-}
-
-// or
-return resolve(ResponseContract::class)->response($users->toArray());
-```
-
-## Paginated response format
-
-The pagination meta is extracted automatically from `LengthAwarePaginator` or `CursorPaginator`:
-
-```ts
-export interface IPaginatedResponse<T> {
-    current_page: number
-    per_page: number
-    last_page: number
-    data: T[]
-    from: number
-    to: number
-    total: number
-    prev_page_url?: any
-    next_page_url: string
-    links: IPaginatedResponseLinks[]
-}
-
-export interface IPaginatedResponseLinks {
-    url?: any
-    label: string
-    active: boolean
-}
-```
-
-## Configuration
-
-Publish the config file:
+Laravel auto-discovers the package provider. To customize the response keys:
 
 ```bash
 php artisan vendor:publish --provider="Pepperfm\ApiBaseResponder\Providers\ApiBaseResponderServiceProvider" --tag="config"
 ```
 
-Key options:
-- `plural_data_key` — data key for collections (default: `'entities'`)
-- `singular_data_key` — data key for single items (default: `'entity'`)
-- `without_wrapping` — disable data-key wrapping globally (default: `false`)
-- `using_for_rest` — enable REST method-based key resolution (default: `true`)
-- `methods_for_singular_key` — methods that use singular key (default: `['show', 'update']`)
-- `force_json_response_header` — auto-add `Accept: application/json` to API requests (default: `true`)
+## Dependency injection
 
-### Check the configuration file to customize response wrapping as you prefer
+```php
+use Pepperfm\ApiBaseResponder\Contracts\ResponseContract;
 
----
+final class UserController
+{
+    public function __construct(private ResponseContract $json) {}
 
-### Testing
+    public function index()
+    {
+        return $this->json->response(User::query()->get(['id', 'name']));
+    }
 
-```bash
-composer test
+    public function show(User $user)
+    {
+        return $this->json->forMethod('show')->response([
+            'id' => $user->id,
+            'name' => $user->name,
+        ]);
+    }
+}
 ```
 
-### Changelog
+By default, `response()` returns:
 
-Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
+```json
+{
+  "entities": [{"id": 1, "name": "Anna"}],
+  "meta": [],
+  "message": "Success"
+}
+```
 
-## Contributing
+With the explicit `forMethod('show')` context, it instead uses `entity`. A plain `response()` **does not infer the caller method**: this avoids reflection on ordinary responses. All keys are configurable.
 
-Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
+## Key naming and attributes
 
-### Security
+There are three ways to select the response data key:
 
-If you discover any security related issues, please email Damon3453@yandex.ru instead of using the issue tracker.
+```php
+// Explicit name (highest priority):
+return $this->json->withDataKey('users')->response($users);
 
-## Credits
+// REST convention from config:
+return $this->json->forMethod('show')->response($user);
 
--   [Dmitry Gaponenko](https://github.com/pepperfm)
--   [Website](https://pepperfm.ru)
+// PHP attribute on the controller method (opt-in):
+use Pepperfm\ApiBaseResponder\Attributes\ResponseDataKey;
 
-## License
+#[ResponseDataKey('profile')]
+public function show(User $user)
+{
+    return $this->json->fromAction()->response(['id' => $user->id]);
+}
+```
 
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+The final example uses `profile` instead of `entity`. Attributes work via normal DI and the `BaseResponse` facade. When calling `fromAction()` from another class, provide explicit class/method arguments if the caller cannot be inferred reliably:
+
+```php
+$this->json->fromAction(UserController::class, 'show')->response($data);
+```
+
+The `#[WithoutWrapping]` attribute and fluent `withoutWrapping()` method also remain available:
+
+```php
+return $this->json->build()->withoutWrapping()->response(['active' => 3]);
+// {"active":3,"meta":[],"message":"Success"}
+```
+
+To avoid silent data loss, unwrapped payloads cannot use reserved keys `meta` or `message`, and cannot be root lists. Use `raw()` when you want an exact payload.
+
+## Response methods
+
+```php
+return $this->json->response($data);                    // 200, configurable envelope
+return $this->json->stored($data);                      // 201, configurable envelope
+return $this->json->deleted();                         // 204, empty body
+return $this->json->error('Not found', 404);            // error envelope
+return $this->json->raw(['message' => 'Untouched']);    // exact JSON, no envelope
+return $this->json->withDataKey('user')->response($data);
+```
+
+The main payload argument accepts arrays and Laravel `Arrayable` implementations such as Collections. For Eloquent models, select safe fields with a Resource or DTO before serialization.
+
+### Pagination
+
+Works with `paginate()`, `simplePaginate()`, and `cursorPaginate()`:
+
+```php
+return $this->json->paginated(User::query()->paginate(20));
+```
+
+The payload appears under the configured data key; pagination metadata is placed under `meta.pagination`. Native Laravel paginator metadata is used as-is (except for moving `data` to the response payload key), rather than maintaining a separate list of fields.
+
+To map records while retaining the paginator's metadata:
+
+```php
+$paginator = User::query()->paginate(20);
+$items = $paginator->getCollection()->map(fn (User $user) => [
+    'id' => $user->id,
+    'name' => $user->name,
+]);
+
+return $this->json->paginated($items, $paginator);
+```
+
+Or use Laravel's `$paginator->through(fn ($user) => ...)` and pass the paginator directly.
+
+## Configuration
+
+Published file: `config/laravel-api-responder.php`.
+
+| Option | Default | Purpose |
+| --- | --- | --- |
+| `plural_data_key` | `entities` | Plain `response()` and collection responses |
+| `singular_data_key` | `entity` | Singular REST actions |
+| `using_for_rest` | `true` | Enable `forMethod()` / `fromAction()` REST naming |
+| `methods_for_singular_key` | `['show', 'update']` | Singular action names |
+| `without_wrapping` | `false` | Spread associative data into the root |
+
+The package does **not** rewrite the incoming request's `Accept` header or install middleware. Laravel's `response()->json()` sets the outgoing JSON content type.
+
+## 4.x upgrade notes
+
+- Only PHP 8.5 and Laravel 13 are supported.
+- Keep using `ResponseContract`, `BaseResponse` facade, the builder, custom keys and both PHP attributes.
+- `deleted()` now correctly returns an empty HTTP 204 and does not accept unused data/message arguments.
+- Unwrapped responses reject collisions involving `meta` and `message` instead of losing data silently.
+- The obsolete `api-responder:init` command, global `paginate()` helper, vendor-overwriting stub and `force_json_response_header` config option were removed.
+- `MetaResolver` no longer needs to be instantiated; use its static methods.
+- Pagination supports three Laravel paginator types, and input data accepts `Arrayable`.
+
+## Local development
+
+CI is intentionally disabled. On PHP 8.5:
+
+```bash
+composer install
+composer test
+composer lint
+```
+
+Use `composer format` to apply Laravel Pint locally.

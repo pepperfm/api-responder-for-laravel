@@ -3,74 +3,17 @@
 declare(strict_types=1);
 
 return [
-    /*
-    |--------------------------------------------------------------------------
-    | Plural Data Key
-    |--------------------------------------------------------------------------
-    |
-    | This key represents the plural form of data entities in the response.
-    | It is used when returning collections of resources.
-    |
-    */
-
+    // The default key for collections and direct response() calls.
     'plural_data_key' => 'entities',
 
-    /*
-    |--------------------------------------------------------------------------
-    | Singular Data Key
-    |--------------------------------------------------------------------------
-    |
-    | This key represents the singular form of a data entity in the response.
-    | It is used when returning a single resource.
-    |
-    */
-
+    // Key used for configured REST actions, e.g. show/update.
     'singular_data_key' => 'entity',
 
-    /*
-    |--------------------------------------------------------------------------
-    | Use RESTful Format
-    |--------------------------------------------------------------------------
-    |
-    | Enable this option to follow RESTful conventions in response formatting.
-    | If set to true, responses will adhere to standard REST API practices.
-    |
-    */
-
+    // REST naming is applied by forMethod() and fromAction(), not guessed on response().
     'using_for_rest' => true,
-
-    /*
-    |--------------------------------------------------------------------------
-    | Methods for Singular Response
-    |--------------------------------------------------------------------------
-    |
-    | Specify the HTTP methods that should return data in singular format.
-    | Add additional methods as necessary.
-    |
-    */
 
     'methods_for_singular_key' => ['show', 'update'],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Force JSON Response Header
-    |--------------------------------------------------------------------------
-    |
-    | When enabled, this option ensures that the response includes a JSON
-    | content type header, signaling to clients that the response is in JSON.
-    |
-    */
-
-    'force_json_response_header' => true,
-
-    /*
-    |--------------------------------------------------------------------------
-    | Disable wrapping of the outer-most resource array.
-    |--------------------------------------------------------------------------
-    |
-    | Enable this option to return response without data_key wrapping.
-    |
-    */
-
+    // Spread associative data into the response root, keeping meta/message.
     'without_wrapping' => false,
 ];
