@@ -40,7 +40,7 @@ final class MetaResolver
         return ['data' => $data, 'meta' => self::asArray($meta)];
     }
 
-    /**
+    /*
      * Keep the native Laravel paginator metadata; exclude data because it has
      * its own (configurable) top-level key in the responder envelope.
      */
