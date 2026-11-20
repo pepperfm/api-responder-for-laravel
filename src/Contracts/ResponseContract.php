@@ -107,8 +107,8 @@ interface ResponseContract
     /**
      * Success response with pagination metadata resolved from paginator input.
      *
-     * @param array|Arrayable|Paginator|LengthAwarePaginator|CursorPaginator $data Response payload or paginator
-     * @param array|Arrayable|Paginator|LengthAwarePaginator|CursorPaginator $meta Additional metadata or paginator
+     * @param array|Arrayable|CursorPaginator|LengthAwarePaginator|Paginator $data Response payload or paginator
+     * @param array|Arrayable|CursorPaginator|LengthAwarePaginator|Paginator $meta Additional metadata or paginator
      * @param string $message Human-readable message
      * @param int $httpStatusCode HTTP status code
      *

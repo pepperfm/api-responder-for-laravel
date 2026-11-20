@@ -1,8 +1,8 @@
 # Changelog
 
-## 4.0.0 — Unreleased (breaking)
+## 4.1.0 — 2026-11-20 (breaking runtime requirements)
 
-Focused maintenance of the original responder, **not** a reduction to a raw JSON helper.
+Publishes the maintained `4.x` implementation for PHP 8.5 and Laravel 13. Earlier `4.0.0` and `4.0.1` tags remain unchanged.
 
 - Target PHP 8.5 and Laravel 13 exclusively.
 - **Preserve** DI (`ResponseContract`), facade, published config, `entity/entities` naming, per-action REST names, `withDataKey()`, fluent `ResponseBuilder`, `#[ResponseDataKey]` and `#[WithoutWrapping]`.
